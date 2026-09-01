@@ -1,0 +1,602 @@
+# ============================================
+# BODY TRAINER APP - DEVELOPMENT ROADMAP
+# ============================================
+# A trainer-client fitness platform
+# Last updated: 2026-09-01
+
+---
+
+## PROJECT OVERVIEW
+- **App Name**: Body Trainer App
+- **Type**: Web Application (Mobile-responsive)
+- **Purpose**: Trainer-client fitness platform for exercise creation, routine management, and progress tracking
+- **Team**: Solo Developer
+- **Target Launch**: MVP in 1-3 months
+- **License**: Free / Open Source
+
+---
+
+## TECH STACK
+
+### Frontend
+- **Framework**: Next.js 14+ (App Router)
+- **UI Library**: React 18+
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **State Management**: React Context + Zustand (if needed)
+- **Form Handling**: React Hook Form + Zod validation
+- **Icons**: Lucide React
+
+### Backend
+- **Runtime**: Next.js API Routes (Route Handlers)
+- **Authentication**: Custom JWT-based auth
+  - Access tokens (short-lived)
+  - Refresh tokens (long-lived, httpOnly cookies)
+  - Password hashing: bcrypt/argon2
+- **Validation**: Zod schemas
+- **File Storage**: Cloudinary or Uploadthing (for exercise images/videos)
+
+### Database
+- **Primary DB**: MongoDB (via Mongoose ODM)
+- **Caching**: Upstash Redis (optional, for rate limiting)
+
+### Deployment & Infrastructure
+- **Hosting**: Vercel (serverless)
+- **Database Hosting**: MongoDB Atlas (free tier)
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Vercel Analytics + Sentry (optional)
+- **Email**: Resend or Nodemailer (transactional emails)
+
+### Dev Tools
+- **Package Manager**: pnpm
+- **Linting**: ESLint + Prettier
+- **Type Checking**: TypeScript strict mode
+- **Git Hooks**: Husky + lint-staged
+
+---
+
+## DATABASE SCHEMA
+
+### Collections
+
+#### users
+```
+{
+  _id: ObjectId
+  email: String (unique, indexed)
+  password: String (hashed)
+  name: String
+  role: Enum ["trainer", "client"]
+  avatar: String (URL)
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+#### trainer_profiles
+```
+{
+  _id: ObjectId
+  userId: ObjectId (ref: users)
+  bio: String
+  specialties: [String]
+  clients: [ObjectId] (ref: users)
+  maxClients: Number
+}
+```
+
+#### client_profiles
+```
+{
+  _id: ObjectId
+  userId: ObjectId (ref: users)
+  trainerId: ObjectId (ref: users)
+  fitnessLevel: Enum ["beginner", "intermediate", "advanced"]
+  goals: [String]
+  notes: String
+  startDate: Date
+}
+```
+
+#### exercises
+```
+{
+  _id: ObjectId
+  trainerId: ObjectId (ref: users)
+  name: String
+  description: String
+  category: Enum ["strength", "cardio", "flexibility", "balance", "other"]
+  muscleGroups: [String]
+  equipment: [String]
+  difficulty: Enum ["easy", "medium", "hard"]
+  videoUrl: String (optional)
+  imageUrl: String (optional)
+  createdAt: Date
+}
+```
+
+#### routines
+```
+{
+  _id: ObjectId
+  trainerId: ObjectId (ref: users)
+  name: String
+  description: String
+  difficulty: Enum ["beginner", "intermediate", "advanced"]
+  duration: Number (estimated minutes)
+  exercises: [{
+    exerciseId: ObjectId (ref: exercises)
+    sets: Number
+    reps: Number
+    duration: Number (for time-based)
+    restTime: Number (seconds)
+    notes: String
+    order: Number
+  }]
+  isTemplate: Boolean
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+#### client_routines
+```
+{
+  _id: ObjectId
+  clientId: ObjectId (ref: users)
+  routineId: ObjectId (ref: routines)
+  assignedDate: Date
+  startDate: Date
+  endDate: Date
+  status: Enum ["active", "completed", "paused"]
+  progress: Number (0-100)
+}
+```
+
+#### workout_logs
+```
+{
+  _id: ObjectId
+  clientId: ObjectId (ref: users)
+  routineId: ObjectId (ref: routines)
+  date: Date
+  exercises: [{
+    exerciseId: ObjectId (ref: exercises)
+    setsCompleted: Number
+    repsCompleted: [Number]
+    weight: Number (optional)
+    duration: Number (optional)
+    completed: Boolean
+  }]
+  notes: String
+  duration: Number (total minutes)
+  rating: Number (1-5)
+  createdAt: Date
+}
+```
+
+#### feedback
+```
+{
+  _id: ObjectId
+  clientId: ObjectId (ref: users)
+  trainerId: ObjectId (ref: users)
+  workoutLogId: ObjectId (ref: workout_logs)
+  type: Enum ["client_to_trainer", "trainer_to_client"]
+  message: String
+  read: Boolean
+  createdAt: Date
+}
+```
+
+#### messages
+```
+{
+  _id: ObjectId
+  senderId: ObjectId (ref: users)
+  receiverId: ObjectId (ref: users)
+  content: String
+  read: Boolean
+  createdAt: Date
+}
+```
+
+---
+
+## FEATURES BREAKDOWN
+
+### v0.1 - Foundation (Weeks 1-2)
+**Goal**: Project setup, authentication, basic UI shell
+
+#### Must Have
+- [ ] Next.js project initialization with TypeScript
+- [ ] Tailwind CSS + shadcn/ui setup
+- [ ] MongoDB connection + Mongoose setup
+- [ ] Custom JWT authentication system
+  - [ ] Register (trainer/client)
+  - [ ] Login/Logout
+  - [ ] Password reset flow
+  - [ ] Session management
+- [ ] Basic layout components (Header, Sidebar, Footer)
+- [ ] Protected routes middleware
+- [ ] User profile page (view/edit)
+- [ ] Database seeding script
+
+#### Nice to Have
+- [ ] Dark/light mode toggle
+- [ ] Email verification flow
+
+---
+
+### v0.2 - Core Features (Weeks 3-4)
+**Goal**: Exercise library, routine builder, trainer CRUD
+
+#### Must Have
+- [ ] **Exercise Management**
+  - [ ] Create exercise (name, description, category, muscle groups)
+  - [ ] Edit/delete exercises
+  - [ ] Exercise library view (list/grid)
+  - [ ] Filter/search exercises
+  - [ ] Exercise categories management
+
+- [ ] **Routine Builder**
+  - [ ] Create routine with name/description
+  - [ ] Add exercises to routine (drag-and-drop reorder)
+  - [ ] Configure sets/reps/rest for each exercise
+  - [ ] Save as template
+  - [ ] Duplicate/edit routines
+  - [ ] Preview routine details
+
+- [ ] **Trainer Dashboard (Basic)**
+  - [ ] View assigned clients list
+  - [ ] Client profile overview
+  - [ ] Assign routine to client
+
+#### Nice to Have
+- [ ] Exercise image/video upload
+- [ ] Routine sharing between trainers
+- [ ] Import/export routines (JSON)
+
+---
+
+### v0.3 - Client Experience (Weeks 5-6)
+**Goal**: Client workout flow, progress tracking, feedback
+
+#### Must Have
+- [ ] **Client Dashboard**
+  - [ ] View active routine
+  - [ ] Today's workout view
+  - [ ] Workout history list
+
+- [ ] **Workout Flow**
+  - [ ] Start workout session
+  - [ ] Log sets/reps during exercise
+  - [ ] Timer for rest periods
+  - [ ] Mark exercises complete
+  - [ ] Add notes during workout
+  - [ ] Finish and save workout
+
+- [ ] **Progress Tracking**
+  - [ ] Workout log history
+  - [ ] Basic statistics (workouts completed, streak)
+  - [ ] Personal records tracking
+
+- [ ] **Feedback System**
+  - [ ] Rate workout (1-5 stars)
+  - [ ] Add feedback notes
+  - [ ] View trainer feedback
+  - [ ] Read/unread status
+
+#### Nice to Have
+- [ ] Body measurements tracking
+- [ ] Progress photos
+- [ ] Calendar view of workouts
+
+---
+
+### v0.4 - Trainer Tools (Weeks 7-8)
+**Goal**: Advanced trainer features, analytics, adjustments
+
+#### Must Have
+- [ ] **Trainer Dashboard (Advanced)**
+  - [ ] Client progress overview
+  - [ ] Recent workout activity feed
+  - [ ] Client completion rates
+  - [ ] Average ratings chart
+
+- [ ] **Client Management**
+  - [ ] Add/remove clients
+  - [ ] Client onboarding flow
+  - [ ] Set client goals
+  - [ ] Add private notes per client
+
+- [ ] **Routine Adjustments**
+  - [ ] View client workout logs
+  - [ ] Modify routine based on feedback
+  - [ ] Create progressive overload plans
+  - [ ] History of routine changes
+
+- [ ] **Communication**
+  - [ ] Direct messaging with clients
+  - [ ] Send encouragement/tips
+  - [ ] Notification system (in-app)
+
+#### Nice to Have
+- [ ] Export client reports (PDF)
+- [ ] Client comparison charts
+- [ ] Bulk routine assignment
+
+---
+
+### v0.5 - Polish & Testing (Weeks 9-10)
+**Goal**: UI refinement, bug fixes, performance
+
+#### Must Have
+- [ ] **UI/UX Polish**
+  - [ ] Responsive design audit (mobile/tablet)
+  - [ ] Loading states and skeletons
+  - [ ] Error handling and empty states
+  - [ ] Toast notifications
+  - [ ] Confirmation dialogs
+  - [ ] Form validation messages
+
+- [ ] **Testing**
+  - [ ] Unit tests for utilities
+  - [ ] Integration tests for API routes
+  - [ ] E2E tests for critical flows
+  - [ ] Manual testing checklist
+
+- [ ] **Performance**
+  - [ ] Image optimization
+  - [ ] Lazy loading
+  - [ ] Database query optimization
+  - [ ] Lighthouse audit (90+ score)
+
+- [ ] **Security**
+  - [ ] Input sanitization
+  - [ ] Rate limiting
+  - [ ] CSRF protection
+  - [ ] Security headers
+
+#### Nice to Have
+- [ ] Accessibility audit (WCAG 2.1)
+- [ ] SEO optimization
+- [ ] PWA setup (offline support)
+
+---
+
+### v1.0 - Launch (Weeks 11-12)
+**Goal**: Production deployment, documentation, public launch
+
+#### Must Have
+- [ ] **Deployment**
+  - [ ] Production environment setup
+  - [ ] MongoDB Atlas cluster
+  - [ ] Domain configuration
+  - [ ] SSL certificate
+  - [ ] Environment variables secured
+
+- [ ] **Documentation**
+  - [ ] README with setup instructions
+  - [ ] API documentation
+  - [ ] User guide
+  - [ ] Contributing guidelines
+
+- [ ] **Launch Prep**
+  - [ ] Final QA testing
+  - [ ] Bug bash session
+  - [ ] Monitoring setup (Sentry, analytics)
+  - [ ] Backup strategy
+  - [ ] Load testing
+
+- [ ] **Release**
+  - [ ] GitHub release v1.0.0
+  - [ ] Deploy to production
+  - [ ] Announce launch
+
+#### Nice to Have
+- [ ] Onboarding tutorial
+- [ ] Help center/FAQ
+- [ ] Feature request board
+
+---
+
+## FUTURE VERSIONS (Post-Launch)
+
+### v1.1 - Enhancements (Month 4)
+- [ ] Mobile app (React Native or PWA)
+- [ ] Apple Watch / WearOS integration
+- [ ] Nutrition tracking
+- [ ] Sleep tracking integration
+- [ ] Workout video library
+
+### v1.2 - Social Features (Month 5)
+- [ ] Trainer leaderboard
+- [ ] Client testimonials
+- [ ] Community challenges
+- [ ] Social sharing
+
+### v1.3 - AI & Automation (Month 6)
+- [ ] AI workout recommendations
+- [ ] Automatic routine adjustments
+- [ ] Chatbot for Q&A
+- [ ] Predictive analytics
+
+### v2.0 - Marketplace (Month 9+)
+- [ ] Trainer marketplace
+- [ ] Paid routines
+- [ ] Subscription plans
+- [ ] Payment processing (Stripe)
+
+---
+
+## PROJECT STRUCTURE
+
+```
+body-trainer-app/
+├── public/
+│   ├── images/
+│   └── icons/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   ├── register/
+│   │   │   └── reset-password/
+│   │   ├── (dashboard)/
+│   │   │   ├── trainer/
+│   │   │   ├── client/
+│   │   │   └── profile/
+│   │   ├── api/
+│   │   │   ├── auth/
+│   │   │   ├── exercises/
+│   │   │   ├── routines/
+│   │   │   ├── workouts/
+│   │   │   ├── feedback/
+│   │   │   └── users/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── ui/ (shadcn)
+│   │   ├── layout/
+│   │   ├── exercises/
+│   │   ├── routines/
+│   │   ├── workouts/
+│   │   └── shared/
+│   ├── lib/
+│   │   ├── db.ts (MongoDB connection)
+│   │   ├── auth.ts (JWT helpers)
+│   │   └── utils.ts
+│   ├── models/
+│   │   ├── User.ts
+│   │   ├── Exercise.ts
+│   │   ├── Routine.ts
+│   │   ├── WorkoutLog.ts
+│   │   └── Feedback.ts
+│   ├── hooks/
+│   ├── types/
+│   └── validators/ (Zod schemas)
+├── tests/
+├── .env.local
+├── .env.example
+├── package.json
+├── tailwind.config.ts
+├── tsconfig.json
+└── README.md
+```
+
+---
+
+## API ENDPOINTS
+
+### Auth
+- POST   /api/auth/register
+- POST   /api/auth/login
+- POST   /api/auth/logout
+- POST   /api/auth/refresh
+- POST   /api/auth/reset-password
+
+### Users
+- GET    /api/users/me
+- PUT    /api/users/me
+- GET    /api/users/:id (trainer only)
+
+### Exercises
+- GET    /api/exercises
+- POST   /api/exercises
+- GET    /api/exercises/:id
+- PUT    /api/exercises/:id
+- DELETE /api/exercises/:id
+
+### Routines
+- GET    /api/routines
+- POST   /api/routines
+- GET    /api/routines/:id
+- PUT    /api/routines/:id
+- DELETE /api/routines/:id
+- POST   /api/routines/:id/assign
+
+### Workouts
+- GET    /api/workouts
+- POST   /api/workouts
+- GET    /api/workouts/:id
+- PUT    /api/workouts/:id
+- GET    /api/workouts/history
+
+### Feedback
+- GET    /api/feedback
+- POST   /api/feedback
+- PUT    /api/feedback/:id/read
+
+### Messages
+- GET    /api/messages
+- POST   /api/messages
+- PUT    /api/messages/:id/read
+
+---
+
+## ENVIRONMENT VARIABLES
+
+```env
+# Database
+MONGODB_URI=mongodb+srv://...
+
+# Auth
+JWT_SECRET=your-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NODE_ENV=development
+
+# File Upload (optional)
+CLOUDINARY_CLOUD_NAME=xxx
+CLOUDINARY_API_KEY=xxx
+CLOUDINARY_API_SECRET=xxx
+
+# Email (optional)
+RESEND_API_KEY=xxx
+```
+
+---
+
+## COMMANDS
+
+### Development
+```bash
+pnpm install          # Install dependencies
+pnpm dev              # Start dev server
+pnpm build            # Build for production
+pnpm start            # Start production server
+pnpm lint             # Run ESLint
+pnpm typecheck        # Run TypeScript check
+pnpm test             # Run tests
+pnpm seed             # Seed database
+```
+
+---
+
+## RESOURCES
+
+- Next.js Docs: https://nextjs.org/docs
+- MongoDB Mongoose: https://mongoosejs.com/docs/
+- shadcn/ui: https://ui.shadcn.com
+- Tailwind CSS: https://tailwindcss.com
+- Zod: https://zod.dev
+
+---
+
+## NOTES
+
+- Start with MongoDB Atlas free tier (M0 cluster)
+- Use Vercel free tier for hosting
+- Implement proper error handling from day one
+- Write tests as you build, not after
+- Keep commits small and atomic
+- Document decisions in ADR (Architecture Decision Records)
+
+---
+
+**Status**: Planning Phase
+**Next Step**: Initialize Next.js project and set up authentication
