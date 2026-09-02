@@ -243,12 +243,12 @@
   - [ ] Exercise categories management
 
 - [ ] **Routine Builder**
-  - [ ] Create routine with name/description
-  - [ ] Add exercises to routine (drag-and-drop reorder)
-  - [ ] Configure sets/reps/rest for each exercise
-  - [ ] Save as template
-  - [ ] Duplicate/edit routines
-  - [ ] Preview routine details
+  - [x] Create routine with name/description
+  - [x] Add exercises to routine (drag-and-drop reorder)
+  - [x] Configure sets/reps/rest for each exercise
+  - [x] Save as template
+  - [x] Duplicate/edit routines
+  - [x] Preview routine details
 
 - [ ] **Trainer Dashboard (Basic)**
   - [ ] View assigned clients list
@@ -602,5 +602,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.2 Core Features (exercise CRUD complete)
-**Next Step**: v0.2 - Routine Builder
+**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder complete)
+**Next Step**: v0.2 - Trainer Dashboard (Basic)
