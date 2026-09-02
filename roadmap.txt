@@ -211,13 +211,13 @@
 - [x] Next.js project initialization with TypeScript
 - [x] Tailwind CSS + shadcn/ui setup
 - [x] MongoDB connection + Mongoose setup
-- [ ] Custom JWT authentication system
-  - [ ] Register (trainer/client)
-  - [ ] Login/Logout
-  - [ ] Password reset flow
-  - [ ] Session management
+- [x] Custom JWT authentication system
+  - [x] Register (trainer/client)
+  - [x] Login/Logout
+  - [x] Password reset flow
+  - [x] Session management
 - [ ] Basic layout components (Header, Sidebar, Footer)
-- [ ] Protected routes middleware
+- [x] Protected routes middleware
 - [ ] User profile page (view/edit)
 - [ ] Database seeding script
 
@@ -602,5 +602,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.1 Foundation (50% complete)
-**Next Step**: Implement custom JWT authentication system (install jose + bcryptjs, create auth helpers, API routes, auth pages)
+**Status**: In Progress - v0.1 Foundation (75% complete)
+**Next Step**: Build basic layout components (Header, Sidebar, Footer)
