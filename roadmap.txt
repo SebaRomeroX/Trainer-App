@@ -236,10 +236,10 @@
 
 #### Must Have
 - [ ] **Exercise Management**
-  - [ ] Create exercise (name, description, category, muscle groups)
-  - [ ] Edit/delete exercises
-  - [ ] Exercise library view (list/grid)
-  - [ ] Filter/search exercises
+  - [x] Create exercise (name, description, category, muscle groups)
+  - [x] Edit/delete exercises
+  - [x] Exercise library view (list/grid)
+  - [x] Filter/search exercises
   - [ ] Exercise categories management
 
 - [ ] **Routine Builder**
@@ -602,5 +602,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.1 Foundation (95% complete)
-**Next Step**: v0.2 - Exercise Management (Exercise CRUD, library view)
+**Status**: In Progress - v0.2 Core Features (exercise CRUD complete)
+**Next Step**: v0.2 - Routine Builder
