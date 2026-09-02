@@ -58,7 +58,7 @@ export async function register(
   await setAccessTokenCookie(accessToken)
   await setRefreshTokenCookie(refreshToken)
 
-  redirect(user.role === "trainer" ? "/trainer" : "/client")
+  redirect(user.role === "trainer" ? "/dashboard/trainer" : "/dashboard/client")
 }
 
 export async function login(
@@ -99,7 +99,7 @@ export async function login(
   await setAccessTokenCookie(accessToken)
   await setRefreshTokenCookie(refreshToken)
 
-  redirect(user.role === "trainer" ? "/trainer" : "/client")
+  redirect(user.role === "trainer" ? "/dashboard/trainer" : "/dashboard/client")
 }
 
 export async function logout() {

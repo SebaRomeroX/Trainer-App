@@ -216,9 +216,9 @@
   - [x] Login/Logout
   - [x] Password reset flow
   - [x] Session management
-- [ ] Basic layout components (Header, Sidebar, Footer)
+- [x] Basic layout components (Header, Sidebar, Footer)
 - [x] Protected routes middleware
-- [ ] User profile page (view/edit)
+- [x] User profile page (view/edit)
 - [ ] Database seeding script
 
 #### Nice to Have
@@ -602,5 +602,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.1 Foundation (100% complete)
-**Next Step**: Implemented basic layout components (Header, Sidebar, Footer)
+**Status**: In Progress - v0.1 Foundation (95% complete)
+**Next Step**: v0.2 - Exercise Management (Exercise CRUD, library view)

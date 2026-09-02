@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
 } from "react"
+import { useRouter } from "next/navigation"
 
 interface User {
   id: string
@@ -52,16 +53,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const router = useRouter()
+
   const logout = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" })
     setAccessToken(null)
     setUser(null)
-    window.location.href = "/login"
-  }, [])
+    router.push("/login")
+  }, [router])
 
   useEffect(() => {
-    refreshSession()
-  }, [refreshSession])
+    async function init() {
+      try {
+        const response = await fetch("/api/auth/refresh", {
+          method: "POST",
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setAccessToken(data.accessToken)
+          setUser(data.user)
+        }
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     if (!accessToken) return

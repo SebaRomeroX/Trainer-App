@@ -21,9 +21,9 @@ export function Header() {
           </Link>
           <Link
             className="text-zinc-600 dark:text-zinc-400 hover underline"
-            href="/dashboard/client"
+            href="/dashboard/profile"
           >
-            Clients
+            Profile
           </Link>
         </div>
 

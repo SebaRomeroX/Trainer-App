@@ -3,14 +3,14 @@ import type { NextRequest } from "next/server"
 import { verifyAccessToken } from "@/lib/auth"
 
 const protectedRoutes = {
-  trainer: ["/trainer"],
-  client: ["/client"],
-  any: ["/profile"],
+  trainer: ["/dashboard/trainer"],
+  client: ["/dashboard/client"],
+  any: ["/dashboard/profile"],
 }
 
 const publicOnlyRoutes = ["/login", "/register", "/reset-password"]
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const isProtectedRoute = Object.values(protectedRoutes)
@@ -45,20 +45,23 @@ export async function proxy(request: NextRequest) {
 
     if (isTrainerRoute && payload.role !== "trainer") {
       const url = request.nextUrl.clone()
-      url.pathname = payload.role === "client" ? "/client" : "/login"
+      url.pathname =
+        payload.role === "client" ? "/dashboard/client" : "/login"
       return NextResponse.redirect(url)
     }
 
     if (isClientRoute && payload.role !== "client") {
       const url = request.nextUrl.clone()
-      url.pathname = payload.role === "trainer" ? "/trainer" : "/login"
+      url.pathname =
+        payload.role === "trainer" ? "/dashboard/trainer" : "/login"
       return NextResponse.redirect(url)
     }
   }
 
   if (isPublicOnlyRoute && payload) {
     const url = request.nextUrl.clone()
-    url.pathname = payload.role === "trainer" ? "/trainer" : "/client"
+    url.pathname =
+      payload.role === "trainer" ? "/dashboard/trainer" : "/dashboard/client"
     return NextResponse.redirect(url)
   }
 
