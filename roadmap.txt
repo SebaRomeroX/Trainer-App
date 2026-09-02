@@ -2,7 +2,7 @@
 # BODY TRAINER APP - DEVELOPMENT ROADMAP
 # ============================================
 # A trainer-client fitness platform
-# Last updated: 2026-09-01
+# Last updated: 2026-09-02
 
 ---
 
@@ -208,9 +208,9 @@
 **Goal**: Project setup, authentication, basic UI shell
 
 #### Must Have
-- [ ] Next.js project initialization with TypeScript
-- [ ] Tailwind CSS + shadcn/ui setup
-- [ ] MongoDB connection + Mongoose setup
+- [x] Next.js project initialization with TypeScript
+- [ ] Tailwind CSS + shadcn/ui setup (Tailwind v4 done, shadcn/ui NOT initialized)
+- [x] MongoDB connection + Mongoose setup
 - [ ] Custom JWT authentication system
   - [ ] Register (trainer/client)
   - [ ] Login/Logout
@@ -224,6 +224,10 @@
 #### Nice to Have
 - [ ] Dark/light mode toggle
 - [ ] Email verification flow
+
+#### Notes
+- Extra models created: TrainerProfile, ClientProfile (not in original roadmap)
+- Missing models: ClientRoutine, Message (planned for v0.2+)
 
 ---
 
@@ -598,5 +602,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: Planning Phase
-**Next Step**: Initialize Next.js project and set up authentication
+**Status**: In Progress - v0.1 Foundation (partially complete)
+**Next Step**: Initialize shadcn/ui (components.json, install @radix-ui primitives, create cn() utility, add base UI components)
