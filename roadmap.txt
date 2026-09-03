@@ -227,7 +227,9 @@
 
 #### Notes
 - Extra models created: TrainerProfile, ClientProfile (not in original roadmap)
+- Client management implemented: clients page, client profile, create/delete clients
 - Missing models: ClientRoutine, Message (planned for v0.2+)
+- Missing: Assign routine to client (last v0.2 item)
 
 ---
 
@@ -251,9 +253,10 @@
   - [x] Preview routine details
 
 - [ ] **Trainer Dashboard (Basic)**
-  - [ ] View assigned clients list
-  - [ ] Client profile overview
+  - [x] View assigned clients list
+  - [x] Client profile overview
   - [ ] Assign routine to client
+  - [x] Trainer can create new client (name/email/password = name)
 
 #### Nice to Have
 - [ ] Exercise image/video upload
@@ -602,5 +605,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder complete)
-**Next Step**: v0.2 - Trainer Dashboard (Basic)
+**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder + client management complete)
+**Next Step**: v0.2 - Assign routine to client

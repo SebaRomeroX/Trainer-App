@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, User, Settings, Dumbbell, ListOrdered } from "lucide-react";
+import { LayoutDashboard, Users, Settings, Dumbbell, ListOrdered } from "lucide-react";
 
 export function Sidebar() {
   return (
@@ -40,9 +40,9 @@ export function Sidebar() {
           <li>
             <Link
               className="flex items-center gap-3 rounded-md px-3 py-2 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-              href="/dashboard/client"
+              href="/dashboard/trainer/clients"
             >
-              <User className="h-5 w-5" />
+              <Users className="h-5 w-5" />
               Clients
             </Link>
           </li>
