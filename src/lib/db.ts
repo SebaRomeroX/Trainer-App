@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { NextResponse } from "next/server";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -35,4 +36,16 @@ export async function connectDB() {
 
   cached.conn = await cached.promise;
   return cached.conn;
+}
+
+const OBJECT_ID_REGEX = /^[0-9a-fA-F]{24}$/;
+
+export function validateObjectId(id: string): NextResponse | null {
+  if (!OBJECT_ID_REGEX.test(id)) {
+    return NextResponse.json(
+      { error: "Invalid ID format." },
+      { status: 400 }
+    );
+  }
+  return null;
 }

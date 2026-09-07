@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
+import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole } from "@/lib/dal"
 import { ClientRoutine } from "@/models/ClientRoutine"
 import { ClientProfile } from "@/models/ClientProfile"
@@ -17,6 +17,8 @@ export async function PUT(
   try {
     const session = await requireRole(["trainer", "client"])
     const { id } = await params
+    const invalid = validateObjectId(id)
+    if (invalid) return invalid
     const body = await request.json()
     const validated = UpdateClientRoutineSchema.safeParse(body)
 
@@ -95,6 +97,8 @@ export async function DELETE(
   try {
     const session = await requireRole(["trainer"])
     const { id } = await params
+    const invalid = validateObjectId(id)
+    if (invalid) return invalid
 
     await connectDB()
 
