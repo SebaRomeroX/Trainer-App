@@ -61,6 +61,7 @@ export default function EditRoutinePage() {
           })
         }
       })
+      .catch((error) => console.error("Failed to load routine:", error))
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [id])
@@ -75,7 +76,11 @@ export default function EditRoutinePage() {
       })
       if (res.ok) {
         router.push("/dashboard/trainer/routines")
+      } else {
+        console.error("Failed to update routine")
       }
+    } catch (error) {
+      console.error("Failed to update routine:", error)
     } finally {
       setIsSubmitting(false)
     }
