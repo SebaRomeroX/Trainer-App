@@ -9,6 +9,7 @@ export default function TrainerDashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     async function fetchCounts() {
       try {
         const [clientsRes, exercisesRes, routinesRes] = await Promise.all([
@@ -21,16 +22,19 @@ export default function TrainerDashboardPage() {
         const exercisesData = exercisesRes.ok ? await exercisesRes.json() : { exercises: [] }
         const routinesData = routinesRes.ok ? await routinesRes.json() : { routines: [] }
 
-        setCounts({
-          clients: clientsData.clients?.length ?? 0,
-          exercises: exercisesData.exercises?.length ?? 0,
-          routines: routinesData.routines?.length ?? 0,
-        })
+        if (!cancelled) {
+          setCounts({
+            clients: clientsData.clients?.length ?? 0,
+            exercises: exercisesData.exercises?.length ?? 0,
+            routines: routinesData.routines?.length ?? 0,
+          })
+        }
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
     fetchCounts()
+    return () => { cancelled = true }
   }, [])
 
   return (

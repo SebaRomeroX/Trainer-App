@@ -35,10 +35,11 @@ export default function EditRoutinePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     fetch(`/api/routines/${id}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.routine) {
+        if (data.routine && !cancelled) {
           setRoutine({
             name: data.routine.name,
             description: data.routine.description,
@@ -60,7 +61,8 @@ export default function EditRoutinePage() {
           })
         }
       })
-      .finally(() => setIsLoading(false))
+      .finally(() => { if (!cancelled) setIsLoading(false) })
+    return () => { cancelled = true }
   }, [id])
 
   const handleSubmit = async (data: CreateRoutineInput) => {

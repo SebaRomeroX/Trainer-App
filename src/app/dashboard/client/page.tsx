@@ -46,20 +46,22 @@ export default function ClientDashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     async function fetchRoutines() {
       try {
         const res = await fetch("/api/clients/me/routines")
         if (res.ok) {
           const data = await res.json()
-          setAssignments(data.routines)
+          if (!cancelled) setAssignments(data.routines)
         }
       } catch {
         // silent
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
     fetchRoutines()
+    return () => { cancelled = true }
   }, [])
 
   const activeAssignment = assignments.find((a) => a.status === "active")

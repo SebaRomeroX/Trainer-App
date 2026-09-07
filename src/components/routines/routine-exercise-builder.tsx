@@ -35,10 +35,12 @@ export function RoutineExerciseBuilder({
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>("")
 
   useEffect(() => {
+    let cancelled = false
     fetch("/api/exercises")
       .then((res) => res.json())
-      .then((data) => setAvailableExercises(data.exercises ?? []))
+      .then((data) => { if (!cancelled) setAvailableExercises(data.exercises ?? []) })
       .catch(() => {})
+    return () => { cancelled = true }
   }, [])
 
   const exercisesWithNames = exercises.map((ex) => {
