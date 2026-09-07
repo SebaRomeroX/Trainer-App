@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Exercise } from "@/models/Exercise"
+import { Routine } from "@/models/Routine"
 import { UpdateExerciseSchema } from "@/validators/exercise"
 
 export async function GET(
@@ -117,6 +118,11 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    await Routine.updateMany(
+      { "exercises.exerciseId": id },
+      { $pull: { exercises: { exerciseId: id } } }
+    )
 
     return NextResponse.json({ message: "Exercise deleted." })
   } catch (error) {
