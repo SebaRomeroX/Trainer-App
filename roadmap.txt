@@ -255,7 +255,7 @@
 - [ ] **Trainer Dashboard (Basic)**
   - [x] View assigned clients list
   - [x] Client profile overview
-  - [ ] Assign routine to client
+  - [x] Assign routine to client
   - [x] Trainer can create new client (name/email/password = name)
 
 #### Nice to Have
@@ -605,5 +605,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder + client management complete)
-**Next Step**: v0.2 - Assign routine to client
+**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder + client management + routine assignment complete)
+**Next Step**: v0.3 - Client Experience (client dashboard, workout flow, progress tracking)

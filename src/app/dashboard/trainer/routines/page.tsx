@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { RoutineTable } from "@/components/routines/routine-table"
 import { RoutineDeleteDialog } from "@/components/routines/routine-delete-dialog"
+import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
 import { Plus } from "lucide-react"
 
 interface RoutineRow {
@@ -26,6 +27,11 @@ export default function RoutinesPage() {
     null
   )
   const [isDeleting, setIsDeleting] = useState(false)
+
+  const [assignOpen, setAssignOpen] = useState(false)
+  const [assigningRoutine, setAssigningRoutine] = useState<RoutineRow | null>(
+    null
+  )
 
   const fetchRoutines = useCallback(async () => {
     setIsLoading(true)
@@ -72,6 +78,11 @@ export default function RoutinesPage() {
     setDeleteOpen(true)
   }
 
+  const openAssignDialog = (routine: RoutineRow) => {
+    setAssigningRoutine(routine)
+    setAssignOpen(true)
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -98,6 +109,7 @@ export default function RoutinesPage() {
           routines={routines}
           onEdit={openEditDialog}
           onDelete={openDeleteDialog}
+          onAssign={openAssignDialog}
         />
       )}
 
@@ -107,6 +119,15 @@ export default function RoutinesPage() {
         routineName={deletingRoutine?.name ?? ""}
         onConfirm={handleDelete}
         isLoading={isDeleting}
+      />
+
+      <AssignRoutineDialog
+        open={assignOpen}
+        onOpenChange={setAssignOpen}
+        mode="from-routine"
+        routineId={assigningRoutine?._id}
+        routineName={assigningRoutine?.name}
+        onAssigned={fetchRoutines}
       />
     </div>
   )

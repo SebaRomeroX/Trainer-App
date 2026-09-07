@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, UserPlus } from "lucide-react"
 import Link from "next/link"
+import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
+import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
 
 interface ClientData {
   _id: string
@@ -34,24 +37,28 @@ export default function ClientProfilePage() {
   const [client, setClient] = useState<ClientData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
+  const [assignOpen, setAssignOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
-    async function fetchClient() {
+    let cancelled = false
+    async function load() {
       try {
         const res = await fetch(`/api/clients/${params.id}`)
-        if (res.ok) {
+        if (!cancelled && res.ok) {
           const data = await res.json()
           setClient(data.client)
-        } else {
+        } else if (!cancelled) {
           setError("Client not found.")
         }
       } catch {
-        setError("Failed to load client.")
+        if (!cancelled) setError("Failed to load client.")
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
-    fetchClient()
+    load()
+    return () => { cancelled = true }
   }, [params.id])
 
   if (isLoading) {
@@ -157,13 +164,30 @@ export default function ClientProfilePage() {
       )}
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
-          Assigned Routines
-        </h2>
-        <p className="text-zinc-500">
-          Routine assignment coming soon.
-        </p>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+            Assigned Routines
+          </h2>
+          <Button size="sm" onClick={() => setAssignOpen(true)}>
+            <UserPlus className="size-4" />
+            Assign Routine
+          </Button>
+        </div>
+        <AssignedRoutinesList
+          clientId={client._id}
+          refreshKey={refreshKey}
+          onRefresh={() => setRefreshKey((k) => k + 1)}
+        />
       </div>
+
+      <AssignRoutineDialog
+        open={assignOpen}
+        onOpenChange={setAssignOpen}
+        mode="from-client"
+        clientId={client._id}
+        clientName={client.userId.name}
+        onAssigned={() => setRefreshKey((k) => k + 1)}
+      />
     </div>
   )
 }

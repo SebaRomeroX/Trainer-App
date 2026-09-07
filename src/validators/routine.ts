@@ -37,6 +37,12 @@ export const CreateRoutineSchema = z.object({
 
 export const UpdateRoutineSchema = CreateRoutineSchema.partial()
 
+export const AssignRoutineSchema = z.object({
+  clientId: z.string().min(1, { error: "Client is required." }),
+  startDate: z.string().optional(),
+})
+
 export type CreateRoutineInput = z.infer<typeof CreateRoutineSchema>
 export type UpdateRoutineInput = z.infer<typeof UpdateRoutineSchema>
 export type RoutineExerciseInput = z.infer<typeof RoutineExerciseSchema>
+export type AssignRoutineInput = z.infer<typeof AssignRoutineSchema>

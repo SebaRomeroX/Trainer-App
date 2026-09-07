@@ -5,3 +5,4 @@ export { Exercise } from "./Exercise";
 export { Routine } from "./Routine";
 export { WorkoutLog } from "./WorkoutLog";
 export { Feedback } from "./Feedback";
+export { ClientRoutine } from "./ClientRoutine";

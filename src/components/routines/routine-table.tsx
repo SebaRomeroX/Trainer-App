@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Pencil, Trash2, Clock, Dumbbell } from "lucide-react"
+import { Pencil, Trash2, Clock, Dumbbell, UserPlus } from "lucide-react"
 
 interface RoutineRow {
   _id: string
@@ -25,6 +25,7 @@ interface RoutineTableProps {
   routines: RoutineRow[]
   onEdit: (routine: RoutineRow) => void
   onDelete: (routine: RoutineRow) => void
+  onAssign?: (routine: RoutineRow) => void
 }
 
 const difficultyColors: Record<string, string> = {
@@ -39,6 +40,7 @@ export function RoutineTable({
   routines,
   onEdit,
   onDelete,
+  onAssign,
 }: RoutineTableProps) {
   if (routines.length === 0) {
     return (
@@ -96,6 +98,16 @@ export function RoutineTable({
               </TableCell>
               <TableCell>
                 <div className="flex gap-1">
+                  {onAssign && (
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      title="Assign to client"
+                      onClick={() => onAssign(routine)}
+                    >
+                      <UserPlus />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon-sm"
