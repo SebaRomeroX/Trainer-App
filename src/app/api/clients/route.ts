@@ -65,7 +65,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const hashedPassword = await hashPassword(validated.data.name)
+    const tempPassword = crypto.randomUUID()
+    const hashedPassword = await hashPassword(tempPassword)
 
     const user = await User.create({
       name: validated.data.name,
@@ -97,6 +98,7 @@ export async function POST(request: Request) {
           notes: clientProfile.notes,
           startDate: clientProfile.startDate,
         },
+        tempPassword,
       },
       { status: 201 }
     )
