@@ -17,7 +17,8 @@ import Link from "next/link"
 
 export function LoginForm() {
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/"
+  const raw = searchParams.get("callbackUrl") ?? "/"
+  const callbackUrl = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/"
 
   const [state, action, pending] = useActionState(login, undefined)
 
