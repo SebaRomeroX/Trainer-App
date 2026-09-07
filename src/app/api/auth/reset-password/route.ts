@@ -25,8 +25,9 @@ export async function POST(request: Request) {
       })
     }
 
-    // TODO: Generate reset token, store in DB, send email via Resend/Nodemailer
-    console.log(`Password reset requested for: ${validated.data.email}`)
+    // NOTE: Password reset is not implemented. The endpoint intentionally returns
+    // a generic success response to prevent email enumeration.
+    // To implement: generate a reset token, store in DB, send email via Resend/Nodemailer.
 
     return NextResponse.json({
       message: "If an account exists, a reset link has been sent.",
