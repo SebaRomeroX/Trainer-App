@@ -69,18 +69,26 @@ export function AssignedRoutinesList({
     assignmentId: string,
     status: "completed" | "paused"
   ) {
-    await fetch(`/api/client-routines/${assignmentId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    })
+    try {
+      await fetch(`/api/client-routines/${assignmentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      })
+    } catch (error) {
+      console.error("Failed to update status:", error)
+    }
     onRefresh?.()
   }
 
   async function handleRemove(assignmentId: string) {
-    await fetch(`/api/client-routines/${assignmentId}`, {
-      method: "DELETE",
-    })
+    try {
+      await fetch(`/api/client-routines/${assignmentId}`, {
+        method: "DELETE",
+      })
+    } catch (error) {
+      console.error("Failed to remove assignment:", error)
+    }
     onRefresh?.()
   }
 
