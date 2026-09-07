@@ -39,7 +39,7 @@ export function RoutineExerciseBuilder({
     fetch("/api/exercises")
       .then((res) => res.json())
       .then((data) => { if (!cancelled) setAvailableExercises(data.exercises ?? []) })
-      .catch(() => {})
+      .catch((error) => console.error("Failed to load exercises:", error))
     return () => { cancelled = true }
   }, [])
 

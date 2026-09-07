@@ -54,8 +54,8 @@ export default function ClientDashboardPage() {
           const data = await res.json()
           if (!cancelled) setAssignments(data.routines)
         }
-      } catch {
-        // silent
+      } catch (error) {
+        console.error("Failed to load routines:", error)
       } finally {
         if (!cancelled) setIsLoading(false)
       }
