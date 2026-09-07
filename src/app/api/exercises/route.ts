@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
-import { requireRole } from "@/lib/dal"
+import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Exercise } from "@/models/Exercise"
 import { CreateExerciseSchema } from "@/validators/exercise"
 
@@ -35,10 +35,10 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ exercises })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)
@@ -71,10 +71,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ exercise }, { status: 201 })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)

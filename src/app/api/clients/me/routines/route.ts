@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectDB } from "@/lib/db"
-import { requireRole } from "@/lib/dal"
+import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { ClientRoutine } from "@/models/ClientRoutine"
 
 export async function GET() {
@@ -26,10 +26,10 @@ export async function GET() {
 
     return NextResponse.json({ routines })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)

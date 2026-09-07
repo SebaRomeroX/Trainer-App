@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectDB, validateObjectId } from "@/lib/db"
-import { requireRole } from "@/lib/dal"
+import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Exercise } from "@/models/Exercise"
 import { UpdateExerciseSchema } from "@/validators/exercise"
 
@@ -30,10 +30,10 @@ export async function GET(
 
     return NextResponse.json({ exercise })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)
@@ -80,10 +80,10 @@ export async function PUT(
 
     return NextResponse.json({ exercise })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)
@@ -120,10 +120,10 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Exercise deleted." })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)

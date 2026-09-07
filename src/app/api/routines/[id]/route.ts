@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectDB, validateObjectId } from "@/lib/db"
-import { requireRole } from "@/lib/dal"
+import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Routine } from "@/models/Routine"
 import { UpdateRoutineSchema } from "@/validators/routine"
 
@@ -32,10 +32,10 @@ export async function GET(
 
     return NextResponse.json({ routine })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)
@@ -82,10 +82,10 @@ export async function PUT(
 
     return NextResponse.json({ routine })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)
@@ -122,10 +122,10 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Routine deleted." })
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    if (error instanceof Error && error.message === "Forbidden") {
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
     console.error(error)

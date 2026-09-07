@@ -5,6 +5,20 @@ import { verifyAccessToken } from "@/lib/auth"
 import { connectDB } from "@/lib/db"
 import { User } from "@/models/User"
 
+export class UnauthorizedError extends Error {
+  constructor() {
+    super("Unauthorized")
+    this.name = "UnauthorizedError"
+  }
+}
+
+export class ForbiddenError extends Error {
+  constructor() {
+    super("Forbidden")
+    this.name = "ForbiddenError"
+  }
+}
+
 export interface Session {
   isAuth: true
   userId: string
@@ -50,10 +64,10 @@ export const getUser = cache(async () => {
 export async function requireRole(allowedRoles: ("trainer" | "client")[]) {
   const session = await verifySession()
   if (!session) {
-    throw new Error("Unauthorized")
+    throw new UnauthorizedError()
   }
   if (!allowedRoles.includes(session.role)) {
-    throw new Error("Forbidden")
+    throw new ForbiddenError()
   }
   return session
 }
