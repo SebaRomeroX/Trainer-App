@@ -3,6 +3,9 @@ import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { User } from "@/models/User"
 import { ClientProfile } from "@/models/ClientProfile"
+import { ClientRoutine } from "@/models/ClientRoutine"
+import { WorkoutLog } from "@/models/WorkoutLog"
+import { Feedback } from "@/models/Feedback"
 
 export async function GET(
   _request: Request,
@@ -86,7 +89,14 @@ export async function DELETE(
       )
     }
 
-    await User.findByIdAndDelete(profile.userId)
+    const userId = profile.userId
+
+    await Promise.all([
+      ClientRoutine.deleteMany({ clientId: userId }),
+      WorkoutLog.deleteMany({ clientId: userId }),
+      Feedback.deleteMany({ clientId: userId }),
+      User.findByIdAndDelete(userId),
+    ])
 
     return NextResponse.json({ message: "Client removed." })
   } catch (error) {
