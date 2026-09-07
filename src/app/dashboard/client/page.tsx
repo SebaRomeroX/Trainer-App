@@ -44,6 +44,7 @@ const difficultyColors: Record<string, string> = {
 export default function ClientDashboardPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -53,9 +54,12 @@ export default function ClientDashboardPage() {
         if (res.ok) {
           const data = await res.json()
           if (!cancelled) setAssignments(data.routines)
+        } else {
+          if (!cancelled) setFetchError(true)
         }
       } catch (error) {
         console.error("Failed to load routines:", error)
+        if (!cancelled) setFetchError(true)
       } finally {
         if (!cancelled) setIsLoading(false)
       }
@@ -78,6 +82,12 @@ export default function ClientDashboardPage() {
 
       {isLoading ? (
         <p className="text-zinc-500">Loading your routines...</p>
+      ) : fetchError ? (
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-6">
+          <p className="text-red-600 dark:text-red-400">
+            Failed to load routines. Please try again later.
+          </p>
+        </div>
       ) : (
         <>
           <Card>
