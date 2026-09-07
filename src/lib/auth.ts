@@ -15,6 +15,25 @@ if (!process.env.JWT_REFRESH_SECRET) throw new Error("JWT_REFRESH_SECRET environ
 const accessSecret = new TextEncoder().encode(process.env.JWT_SECRET)
 const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET)
 
+const ACCESS_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "15m"
+const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN ?? "7d"
+
+function parseDurationToSeconds(duration: string): number {
+  const match = duration.match(/^(\d+)(s|m|h|d)$/)
+  if (!match) return 7 * 24 * 60 * 60
+  const value = parseInt(match[1], 10)
+  switch (match[2]) {
+    case "s": return value
+    case "m": return value * 60
+    case "h": return value * 60 * 60
+    case "d": return value * 24 * 60 * 60
+    default: return 7 * 24 * 60 * 60
+  }
+}
+
+const ACCESS_COOKIE_MAX_AGE = parseDurationToSeconds(ACCESS_EXPIRES_IN)
+const REFRESH_COOKIE_MAX_AGE = parseDurationToSeconds(REFRESH_EXPIRES_IN)
+
 export async function signAccessToken(
   payload: Omit<TokenPayload, "iat" | "exp" | "iss">
 ) {
@@ -22,7 +41,7 @@ export async function signAccessToken(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setIssuer("trainer-app")
-    .setExpirationTime(process.env.JWT_EXPIRES_IN ?? "15m")
+    .setExpirationTime(ACCESS_EXPIRES_IN)
     .sign(accessSecret)
 }
 
@@ -33,7 +52,7 @@ export async function signRefreshToken(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setIssuer("trainer-app")
-    .setExpirationTime(process.env.JWT_REFRESH_EXPIRES_IN ?? "7d")
+    .setExpirationTime(REFRESH_EXPIRES_IN)
     .sign(refreshSecret)
 }
 
@@ -85,7 +104,7 @@ export async function setRefreshTokenCookie(token: string) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60,
+    maxAge: REFRESH_COOKIE_MAX_AGE,
   })
 }
 
@@ -96,7 +115,7 @@ export async function setAccessTokenCookie(token: string) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 15 * 60,
+    maxAge: ACCESS_COOKIE_MAX_AGE,
   })
 }
 
