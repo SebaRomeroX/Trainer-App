@@ -41,6 +41,7 @@ export async function GET(request: Request) {
     if (error instanceof Error && error.message === "Forbidden") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    console.error(error)
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message === "Forbidden") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    console.error(error)
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }
