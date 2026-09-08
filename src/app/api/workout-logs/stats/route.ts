@@ -15,6 +15,8 @@ export async function GET() {
     startOfWeek.setDate(now.getDate() - now.getDay())
     startOfWeek.setHours(0, 0, 0, 0)
 
+    const dayMs = 86400000
+
     const [
       totalWorkouts,
       workoutsThisWeek,
@@ -57,13 +59,13 @@ export async function GET() {
 
       const hasTodayOrYesterday =
         dates[0] === today.getTime() ||
-        dates[0] === today.getTime() - 86400000
+        dates[0] === today.getTime() - dayMs
 
       if (hasTodayOrYesterday) {
         currentStreak = 1
         for (let i = 0; i < dates.length - 1; i++) {
           const diff = dates[i] - dates[i + 1]
-          if (diff === 86400000) {
+          if (diff === dayMs) {
             currentStreak++
           } else {
             break

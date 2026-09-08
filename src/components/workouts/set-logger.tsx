@@ -103,12 +103,13 @@ export function SetLogger({
       {isTimeBased ? (
         <div className="space-y-1">
           <Label className="text-xs">Duration (seconds)</Label>
-          <Input
-            type="number"
-            min={0}
-            className="w-24"
-            value={data.duration ?? ""}
-            onChange={(e) => {
+                <Input
+                  type="number"
+                  min={0}
+                  className="w-24"
+                  value={data.duration ?? ""}
+                  onKeyDown={(e) => { if (e.key === "-" || e.key === "e") e.preventDefault() }}
+                  onChange={(e) => {
               const parsed = Number(e.target.value)
               onChange(
                 index,
@@ -133,6 +134,7 @@ export function SetLogger({
                   min={0}
                   className="w-16 text-center"
                   value={data.repsCompleted[setIndex] ?? ""}
+                  onKeyDown={(e) => { if (e.key === "-" || e.key === "e") e.preventDefault() }}
                   onChange={(e) => handleSetReps(setIndex, e.target.value)}
                   placeholder="0"
                 />
@@ -150,6 +152,7 @@ export function SetLogger({
             min={0}
             step={0.5}
             value={data.weight ?? ""}
+            onKeyDown={(e) => { if (e.key === "-" || e.key === "e") e.preventDefault() }}
             onChange={(e) => {
               const parsed = Number(e.target.value)
               onChange(

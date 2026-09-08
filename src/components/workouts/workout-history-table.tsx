@@ -79,7 +79,7 @@ export function WorkoutHistoryTable({ logs }: WorkoutHistoryTableProps) {
                     <span>{log.routineId.name}</span>
                     <Badge
                       variant="outline"
-                      className={difficultyColors[log.routineId.difficulty]}
+                      className={difficultyColors[log.routineId.difficulty] ?? "bg-zinc-100 text-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"}
                     >
                       {log.routineId.difficulty}
                     </Badge>

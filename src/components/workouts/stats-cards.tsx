@@ -30,7 +30,7 @@ const cards = [
     key: "currentStreak",
     label: "Current Streak",
     icon: Flame,
-    format: (v: number) => `${v} day${v === 1 ? "" : "s"}`,
+    format: (v: number) => (v > 0 ? `${v} day${v === 1 ? "" : "s"}` : "None"),
   },
   {
     key: "averageRating",
