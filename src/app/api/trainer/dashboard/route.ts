@@ -168,6 +168,12 @@ export async function GET() {
     if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
+    if (error instanceof Error && error.name === "CastError") {
+      return NextResponse.json(
+        { error: "Invalid data." },
+        { status: 400 }
+      )
+    }
     console.error(error)
     return NextResponse.json(
       { error: "Something went wrong." },
