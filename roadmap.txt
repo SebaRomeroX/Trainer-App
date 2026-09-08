@@ -2,7 +2,7 @@
 # BODY TRAINER APP - DEVELOPMENT ROADMAP
 # ============================================
 # A trainer-client fitness platform
-# Last updated: 2026-09-02
+# Last updated: 2026-09-08
 
 ---
 
@@ -326,10 +326,10 @@ Skipped items (pending future consideration):
 
 #### Must Have
 - [ ] **Trainer Dashboard (Advanced)**
-  - [ ] Client progress overview
-  - [ ] Recent workout activity feed
-  - [ ] Client completion rates
-  - [ ] Average ratings chart
+  - [x] Client progress overview
+  - [x] Recent workout activity feed
+  - [x] Client completion rates
+  - [x] Average ratings chart
 
 - [ ] **Client Management**
   - [ ] Add/remove clients
@@ -626,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.3 Client Experience complete
-**Next Step**: v0.4 - Trainer Tools (Advanced trainer dashboard, client progress, messaging, routine adjustments)
+**Status**: In Progress - v0.4 Trainer Tools (Phase 1: Enhanced Dashboard complete)
+**Next Step**: v0.4 Phase 2 - Messaging System (Message model, API, trainer/client chat UI)
