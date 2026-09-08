@@ -14,3 +14,13 @@ export const CreateClientSchema = z.object({
 })
 
 export type CreateClientInput = z.infer<typeof CreateClientSchema>
+
+export const UpdateClientSchema = z.object({
+  fitnessLevel: z.enum(["beginner", "intermediate", "advanced"], {
+    error: "Please select a fitness level.",
+  }).optional(),
+  goals: z.array(z.string().trim()).optional(),
+  notes: z.string().max(500, { error: "Notes must be 500 characters or less." }).trim().optional(),
+})
+
+export type UpdateClientInput = z.infer<typeof UpdateClientSchema>

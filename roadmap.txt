@@ -332,13 +332,13 @@ Skipped items (pending future consideration):
   - [x] Average ratings chart
 
 - [ ] **Client Management**
-  - [ ] Add/remove clients
+  - [x] Add/remove clients
   - [ ] Client onboarding flow
-  - [ ] Set client goals
-  - [ ] Add private notes per client
+  - [x] Set client goals
+  - [x] Add private notes per client
 
 - [ ] **Routine Adjustments**
-  - [ ] View client workout logs
+  - [x] View client workout logs
   - [ ] Modify routine based on feedback
   - [ ] Create progressive overload plans
   - [ ] History of routine changes
@@ -626,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.4 Trainer Tools (Phase 1 & 2 complete: Dashboard + Messaging)
-**Next Step**: v0.4 Phase 3 - Client Management Enhancements (view client logs, edit goals/notes, routine adjustments)
+**Status**: In Progress - v0.4 Trainer Tools (Phase 1-3 complete: Dashboard, Messaging, Client Management)
+**Next Step**: v0.4 Polish - Client onboarding flow, routine adjustment features, notification system
