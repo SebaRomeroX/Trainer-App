@@ -9,6 +9,7 @@ const links = [
   { href: "/dashboard/client/history", label: "History", icon: History },
   { href: "/dashboard/client/progress", label: "Progress", icon: TrendingUp },
   { href: "/dashboard/client/feedback", label: "Feedback", icon: MessageSquare },
+  { href: "/dashboard/client/messages", label: "Messages", icon: MessageSquare },
   { href: "/dashboard/profile", label: "Profile", icon: Settings },
 ]
 

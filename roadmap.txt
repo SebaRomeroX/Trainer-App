@@ -344,8 +344,8 @@ Skipped items (pending future consideration):
   - [ ] History of routine changes
 
 - [ ] **Communication**
-  - [ ] Direct messaging with clients
-  - [ ] Send encouragement/tips
+  - [x] Direct messaging with clients
+  - [x] Send encouragement/tips
   - [ ] Notification system (in-app)
 
 #### Nice to Have
@@ -626,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.4 Trainer Tools (Phase 1: Enhanced Dashboard complete)
-**Next Step**: v0.4 Phase 2 - Messaging System (Message model, API, trainer/client chat UI)
+**Status**: In Progress - v0.4 Trainer Tools (Phase 1 & 2 complete: Dashboard + Messaging)
+**Next Step**: v0.4 Phase 3 - Client Management Enhancements (view client logs, edit goals/notes, routine adjustments)
