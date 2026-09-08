@@ -21,6 +21,7 @@ export async function GET(
       clientId: session.userId,
     })
       .populate("routineId", "name difficulty")
+      .populate("exercises.exerciseId", "name category muscleGroups")
       .lean()
 
     if (!log) {
