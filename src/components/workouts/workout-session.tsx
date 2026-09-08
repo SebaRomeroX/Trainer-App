@@ -119,6 +119,7 @@ export function WorkoutSession({ assignmentId }: WorkoutSessionProps) {
         weight: exerciseLogs[i].weight,
         duration: exerciseLogs[i].duration,
         completed: exerciseLogs[i].completed,
+        notes: exerciseLogs[i].notes || undefined,
       }))
 
       const res = await fetch("/api/workout-logs", {

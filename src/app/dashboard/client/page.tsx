@@ -63,7 +63,7 @@ export default function ClientDashboardPage() {
         if (!cancelled) {
           if (routinesRes.ok) {
             const data = await routinesRes.json()
-            setAssignments(data.routines)
+            setAssignments(data.routines ?? [])
           } else {
             setFetchError(true)
           }

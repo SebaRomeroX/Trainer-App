@@ -39,7 +39,7 @@ export function SetLogger({
     const reps = [...data.repsCompleted]
     reps[setIndex] = value ? Number(value) : 0
     onChange(index, "repsCompleted", reps)
-    onChange(index, "setsCompleted", reps.filter((r) => r > 0).length || reps.length)
+    onChange(index, "setsCompleted", reps.filter((r) => r > 0).length)
   }
 
   return (

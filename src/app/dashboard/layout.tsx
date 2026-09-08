@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { Header } from "@/components/layout/header"
 import { Sidebar } from "@/components/layout/sidebar"
 import { ClientSidebar } from "@/components/layout/client-sidebar"
@@ -10,7 +11,9 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await verifySession()
-  const role = session?.role ?? "trainer"
+  if (!session) redirect("/login")
+
+  const role = session.role
 
   return (
     <div className="flex min-h-screen">

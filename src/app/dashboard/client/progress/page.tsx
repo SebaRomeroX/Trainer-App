@@ -26,9 +26,13 @@ export default function ProgressPage() {
     let cancelled = false
     async function fetchData() {
       try {
-        const res = await fetch("/api/workout-logs/stats")
-        if (res.ok) {
-          const data = await res.json()
+        const [statsRes, logsRes] = await Promise.all([
+          fetch("/api/workout-logs/stats"),
+          fetch("/api/workout-logs?limit=100"),
+        ])
+
+        if (statsRes.ok) {
+          const data = await statsRes.json()
           if (!cancelled) {
             setStats({
               totalWorkouts: data.totalWorkouts,
@@ -39,7 +43,6 @@ export default function ProgressPage() {
           }
         }
 
-        const logsRes = await fetch("/api/workout-logs?limit=100")
         if (logsRes.ok) {
           const logsData = await logsRes.json()
           if (!cancelled) {
@@ -87,9 +90,9 @@ export default function ProgressPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
         </div>
-      ) : stats ? (
+      ) : stats || weekData.length > 0 ? (
         <>
-          <StatsCards stats={stats} />
+          {stats && <StatsCards stats={stats} />}
           <WeeklyChart data={weekData} />
         </>
       ) : (
