@@ -69,7 +69,7 @@ export default function TrainerMessagesPage() {
           setMessages(data.messages || [])
 
           data.messages?.forEach((msg: Message) => {
-            if (!msg.read && msg.receiverId._id === selectedUserId) {
+            if (!msg.read && msg.receiverId._id !== selectedUserId) {
               fetch(`/api/messages/${msg._id}/read`, { method: "PUT" })
             }
           })

@@ -22,6 +22,7 @@ export default function ClientMessagesPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [trainerId, setTrainerId] = useState<string | null>(null)
   const [trainerName, setTrainerName] = useState<string>("Your Trainer")
+  const [myUserId, setMyUserId] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
@@ -35,9 +36,13 @@ export default function ClientMessagesPage() {
     let cancelled = false
     async function load() {
       try {
-        const res = await fetch("/api/messages")
-        if (!cancelled && res.ok) {
-          const data = await res.json()
+        const [messagesRes, profileRes] = await Promise.all([
+          fetch("/api/messages"),
+          fetch("/api/clients/me"),
+        ])
+
+        if (!cancelled && messagesRes.ok) {
+          const data = await messagesRes.json()
           setMessages(data.messages || [])
 
           if (data.messages?.length > 0) {
@@ -45,15 +50,17 @@ export default function ClientMessagesPage() {
             const other = msg.senderId._id !== msg.receiverId._id ? msg.senderId : msg.receiverId
             setTrainerId(other._id)
             setTrainerName(other.name)
-          } else {
-            const profileRes = await fetch("/api/clients/me")
-            if (profileRes.ok) {
-              const profileData = await profileRes.json()
-              if (profileData.trainer) {
-                setTrainerId(profileData.trainer._id)
-                setTrainerName(profileData.trainer.name)
-              }
-            }
+          }
+        }
+
+        if (!cancelled && profileRes.ok) {
+          const profileData = await profileRes.json()
+          if (profileData.client) {
+            setMyUserId(profileData.client._id)
+          }
+          if (profileData.trainer) {
+            setTrainerId((prev) => prev ?? profileData.trainer._id)
+            setTrainerName((prev) => prev === "Your Trainer" ? profileData.trainer.name : prev)
           }
         }
       } finally {
@@ -110,7 +117,9 @@ export default function ClientMessagesPage() {
           </div>
         ) : (
           messages.map((msg) => {
-            const isMine = msg.senderId._id === msg.receiverId._id || msg.senderId.name !== trainerName
+            const isMine = myUserId
+              ? msg.senderId._id === myUserId
+              : msg.senderId._id !== trainerId
             return (
               <div key={msg._id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                 <div
