@@ -231,6 +231,11 @@
 - Missing models: ClientRoutine, Message (planned for v0.2+)
 - Missing: Assign routine to client (last v0.2 item)
 
+#### Status: COMPLETE
+Skipped items (pending future consideration):
+- Database seeding script
+- Email verification flow
+
 ---
 
 ### v0.2 - Core Features (Weeks 3-4)
@@ -263,40 +268,56 @@
 - [ ] Routine sharing between trainers
 - [ ] Import/export routines (JSON)
 
+#### Status: COMPLETE
+Skipped items (pending future consideration):
+- Exercise categories management
+- Exercise image/video upload
+- Routine sharing between trainers
+- Import/export routines (JSON)
+
 ---
 
 ### v0.3 - Client Experience (Weeks 5-6)
 **Goal**: Client workout flow, progress tracking, feedback
 
 #### Must Have
-- [ ] **Client Dashboard**
-  - [ ] View active routine
-  - [ ] Today's workout view
-  - [ ] Workout history list
+- [x] **Client Dashboard**
+  - [x] View active routine
+  - [x] Today's workout view
+  - [x] Workout history list
 
-- [ ] **Workout Flow**
-  - [ ] Start workout session
-  - [ ] Log sets/reps during exercise
+- [x] **Workout Flow**
+  - [x] Start workout session
+  - [x] Log sets/reps during exercise
   - [ ] Timer for rest periods
-  - [ ] Mark exercises complete
+  - [x] Mark exercises complete
   - [ ] Add notes during workout
-  - [ ] Finish and save workout
+  - [x] Finish and save workout
 
-- [ ] **Progress Tracking**
-  - [ ] Workout log history
-  - [ ] Basic statistics (workouts completed, streak)
+- [x] **Progress Tracking**
+  - [x] Workout log history
+  - [x] Basic statistics (workouts completed, streak)
   - [ ] Personal records tracking
 
-- [ ] **Feedback System**
-  - [ ] Rate workout (1-5 stars)
-  - [ ] Add feedback notes
-  - [ ] View trainer feedback
-  - [ ] Read/unread status
+- [x] **Feedback System**
+  - [x] Rate workout (1-5 stars)
+  - [x] Add feedback notes
+  - [x] View trainer feedback
+  - [x] Read/unread status
 
 #### Nice to Have
 - [ ] Body measurements tracking
 - [ ] Progress photos
 - [ ] Calendar view of workouts
+
+#### Status: COMPLETE
+Skipped items (pending future consideration):
+- Timer for rest periods
+- Add notes during workout
+- Personal records tracking
+- Body measurements tracking
+- Progress photos
+- Calendar view of workouts
 
 ---
 
@@ -605,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.2 Core Features (exercise CRUD + routine builder + client management + routine assignment complete)
-**Next Step**: v0.3 - Client Experience (client dashboard, workout flow, progress tracking)
+**Status**: In Progress - v0.3 Client Experience complete
+**Next Step**: v0.4 - Trainer Tools (Advanced trainer dashboard, client progress, messaging, routine adjustments)
