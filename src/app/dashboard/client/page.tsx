@@ -60,19 +60,22 @@ export default function ClientDashboardPage() {
           fetch("/api/workout-logs/stats"),
         ])
 
+        const [routinesData, statsData] = await Promise.all([
+          routinesRes.ok ? routinesRes.json() : Promise.resolve(null),
+          statsRes.ok ? statsRes.json() : Promise.resolve(null),
+        ])
+
         if (!cancelled) {
-          if (routinesRes.ok) {
-            const data = await routinesRes.json()
-            setAssignments(data.routines ?? [])
+          if (routinesData) {
+            setAssignments(routinesData.routines ?? [])
           } else {
             setFetchError(true)
           }
 
-          if (statsRes.ok) {
-            const data = await statsRes.json()
+          if (statsData) {
             setStats({
-              workoutsThisWeek: data.workoutsThisWeek,
-              currentStreak: data.currentStreak,
+              workoutsThisWeek: statsData.workoutsThisWeek,
+              currentStreak: statsData.currentStreak,
             })
           }
         }

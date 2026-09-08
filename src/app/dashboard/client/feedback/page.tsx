@@ -16,7 +16,7 @@ interface FeedbackItem {
 
 async function loadFeedbacks(): Promise<FeedbackItem[]> {
   const res = await fetch("/api/feedback?limit=50")
-  if (!res.ok) return []
+  if (!res.ok) throw new Error("Failed to load feedback")
   const data = await res.json()
   return data.feedbacks
 }
@@ -24,15 +24,23 @@ async function loadFeedbacks(): Promise<FeedbackItem[]> {
 export default function FeedbackPage() {
   const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    loadFeedbacks().then((data) => {
-      if (!cancelled) {
-        setFeedbacks(data)
-        setIsLoading(false)
-      }
-    })
+    loadFeedbacks()
+      .then((data) => {
+        if (!cancelled) {
+          setFeedbacks(data)
+          setLoadError(null)
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err.message || "Failed to load feedback")
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
     return () => { cancelled = true }
   }, [])
 
@@ -53,8 +61,13 @@ export default function FeedbackPage() {
       throw new Error(errorData.error || "Failed to submit feedback")
     }
 
-    const updated = await loadFeedbacks()
-    setFeedbacks(updated)
+    try {
+      const updated = await loadFeedbacks()
+      setFeedbacks(updated)
+      setLoadError(null)
+    } catch {
+      // Keep existing list if re-fetch fails after successful submission
+    }
   }
 
   return (
@@ -77,6 +90,10 @@ export default function FeedbackPage() {
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          </div>
+        ) : loadError ? (
+          <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-4">
+            <p className="text-sm text-red-600 dark:text-red-400">{loadError}</p>
           </div>
         ) : (
           <FeedbackList feedbacks={feedbacks} />

@@ -63,9 +63,12 @@ export function WorkoutSession({ assignmentId }: WorkoutSessionProps) {
   const [startTime] = useState(() => Date.now())
 
   useEffect(() => {
+    const controller = new AbortController()
     async function fetchAssignment() {
       try {
-        const res = await fetch(`/api/client-routines/${assignmentId}/details`)
+        const res = await fetch(`/api/client-routines/${assignmentId}/details`, {
+          signal: controller.signal,
+        })
         if (!res.ok) throw new Error("Failed to load assignment")
         const data = await res.json()
         setAssignment(data.assignment)
@@ -81,13 +84,15 @@ export function WorkoutSession({ assignmentId }: WorkoutSessionProps) {
             notes: "",
           }))
         )
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return
         setError("Failed to load workout. Please try again.")
       } finally {
         setIsLoading(false)
       }
     }
     fetchAssignment()
+    return () => controller.abort()
   }, [assignmentId])
 
   const handleExerciseChange = (
@@ -108,6 +113,7 @@ export function WorkoutSession({ assignmentId }: WorkoutSessionProps) {
   const handleFinish = async () => {
     if (!assignment) return
 
+    setError(null)
     setIsSaving(true)
     try {
       const duration = Math.round((Date.now() - startTime) / 60000)
@@ -211,7 +217,7 @@ export function WorkoutSession({ assignmentId }: WorkoutSessionProps) {
       <div className="space-y-4">
         {routine.exercises.map((ex, i) => (
           <SetLogger
-            key={ex.exerciseId._id}
+            key={`${ex.exerciseId._id}-${i}`}
             index={i}
             exercise={{
               name: ex.exerciseId.name,

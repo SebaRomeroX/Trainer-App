@@ -67,7 +67,17 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await requireRole(["client"])
-    const body = await request.json()
+
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request body." },
+        { status: 400 }
+      )
+    }
+
     const validated = CreateFeedbackSchema.safeParse(body)
 
     if (!validated.success) {

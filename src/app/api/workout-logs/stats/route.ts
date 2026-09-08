@@ -18,35 +18,36 @@ export async function GET() {
     const [
       totalWorkouts,
       workoutsThisWeek,
-      allLogs,
+      ratingAgg,
+      recentLogs,
     ] = await Promise.all([
       WorkoutLog.countDocuments({ clientId: session.userId }),
       WorkoutLog.countDocuments({
         clientId: session.userId,
         date: { $gte: startOfWeek },
       }),
+      WorkoutLog.aggregate([
+        { $match: { clientId: session.userId, rating: { $exists: true, $ne: null } } },
+        { $group: { _id: null, avg: { $avg: "$rating" }, count: { $sum: 1 } } },
+      ]),
       WorkoutLog.find({ clientId: session.userId })
         .sort({ date: -1 })
-        .select("date rating")
+        .limit(365)
+        .select("date")
         .lean(),
     ])
 
-    let averageRating = 0
-    const ratedWorkouts = allLogs.filter((l) => l.rating)
-    if (ratedWorkouts.length > 0) {
-      averageRating =
-        ratedWorkouts.reduce((sum, l) => sum + (l.rating || 0), 0) /
-        ratedWorkouts.length
-    }
+    const averageRating =
+      ratingAgg.length > 0 ? Math.round(ratingAgg[0].avg * 10) / 10 : 0
 
     let currentStreak = 0
-    if (allLogs.length > 0) {
+    if (recentLogs.length > 0) {
       const today = new Date(now)
       today.setHours(0, 0, 0, 0)
 
       const dates = [
         ...new Set(
-          allLogs.map((l) => {
+          recentLogs.map((l) => {
             const d = new Date(l.date)
             d.setHours(0, 0, 0, 0)
             return d.getTime()

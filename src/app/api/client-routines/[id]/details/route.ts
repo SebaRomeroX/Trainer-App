@@ -18,6 +18,7 @@ export async function GET(
     const assignment = await ClientRoutine.findOne({
       _id: id,
       clientId: session.userId,
+      status: "active",
     })
       .populate({
         path: "routineId",

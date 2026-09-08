@@ -21,6 +21,7 @@ interface SetLoggerProps {
     setsCompleted: number
     repsCompleted: number[]
     weight?: number
+    duration?: number
     completed: boolean
     notes: string
   }
@@ -37,10 +38,26 @@ export function SetLogger({
 
   const handleSetReps = (setIndex: number, value: string) => {
     const reps = [...data.repsCompleted]
-    reps[setIndex] = value ? Number(value) : 0
+    const parsed = Number(value)
+    reps[setIndex] = value !== "" && !isNaN(parsed) && parsed >= 0 ? parsed : 0
     onChange(index, "repsCompleted", reps)
     onChange(index, "setsCompleted", reps.filter((r) => r > 0).length)
   }
+
+  const handleToggleCompleted = (checked: boolean) => {
+    onChange(index, "completed", !!checked)
+    if (checked) {
+      onChange(index, "setsCompleted", targetSets)
+    } else {
+      onChange(
+        index,
+        "setsCompleted",
+        data.repsCompleted.filter((r) => r > 0).length
+      )
+    }
+  }
+
+  const isTimeBased = exercise.category === "stretching" || exercise.category === "cardio"
 
   return (
     <div
@@ -66,10 +83,16 @@ export function SetLogger({
           <Checkbox
             id={`completed-${index}`}
             checked={data.completed}
-            onCheckedChange={(checked) => onChange(index, "completed", !!checked)}
+            onCheckedChange={handleToggleCompleted}
           />
         </div>
       </div>
+
+      {exercise.routineNotes && (
+        <p className="text-xs text-zinc-500 italic">
+          Note: {exercise.routineNotes}
+        </p>
+      )}
 
       {exercise.targetSets && exercise.targetReps && (
         <p className="text-xs text-zinc-500">
@@ -77,24 +100,47 @@ export function SetLogger({
         </p>
       )}
 
-      <div className="space-y-2">
-        <Label className="text-xs">Reps per set</Label>
-        <div className="flex gap-2 flex-wrap">
-          {Array.from({ length: targetSets }).map((_, setIndex) => (
-            <div key={setIndex} className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-zinc-400">Set {setIndex + 1}</span>
-              <Input
-                type="number"
-                min={0}
-                className="w-16 text-center"
-                value={data.repsCompleted[setIndex] ?? ""}
-                onChange={(e) => handleSetReps(setIndex, e.target.value)}
-                placeholder="0"
-              />
-            </div>
-          ))}
+      {isTimeBased ? (
+        <div className="space-y-1">
+          <Label className="text-xs">Duration (seconds)</Label>
+          <Input
+            type="number"
+            min={0}
+            className="w-24"
+            value={data.duration ?? ""}
+            onChange={(e) => {
+              const parsed = Number(e.target.value)
+              onChange(
+                index,
+                "duration",
+                e.target.value !== "" && !isNaN(parsed) && parsed >= 0
+                  ? parsed
+                  : undefined
+              )
+            }}
+            placeholder="0"
+          />
         </div>
-      </div>
+      ) : (
+        <div className="space-y-2">
+          <Label className="text-xs">Reps per set</Label>
+          <div className="flex gap-2 flex-wrap">
+            {Array.from({ length: targetSets }).map((_, setIndex) => (
+              <div key={setIndex} className="flex flex-col items-center gap-1">
+                <span className="text-[10px] text-zinc-400">Set {setIndex + 1}</span>
+                <Input
+                  type="number"
+                  min={0}
+                  className="w-16 text-center"
+                  value={data.repsCompleted[setIndex] ?? ""}
+                  onChange={(e) => handleSetReps(setIndex, e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
@@ -104,9 +150,16 @@ export function SetLogger({
             min={0}
             step={0.5}
             value={data.weight ?? ""}
-            onChange={(e) =>
-              onChange(index, "weight", e.target.value ? Number(e.target.value) : undefined)
-            }
+            onChange={(e) => {
+              const parsed = Number(e.target.value)
+              onChange(
+                index,
+                "weight",
+                e.target.value !== "" && !isNaN(parsed) && parsed >= 0
+                  ? parsed
+                  : undefined
+              )
+            }}
             placeholder="—"
           />
         </div>

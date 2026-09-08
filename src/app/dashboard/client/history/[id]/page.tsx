@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -40,6 +40,7 @@ export default function WorkoutLogDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const { id } = use(params)
   const router = useRouter()
   const [log, setLog] = useState<WorkoutLogDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -49,7 +50,6 @@ export default function WorkoutLogDetailPage({
     let cancelled = false
     async function fetchLog() {
       try {
-        const { id } = await params
         const res = await fetch(`/api/workout-logs/${id}`)
         if (!res.ok) throw new Error("Not found")
         const data = await res.json()
@@ -62,7 +62,7 @@ export default function WorkoutLogDetailPage({
     }
     fetchLog()
     return () => { cancelled = true }
-  }, [params])
+  }, [id])
 
   const handleDelete = async () => {
     if (!log || !confirm("Delete this workout log?")) return
