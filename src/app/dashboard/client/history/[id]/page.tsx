@@ -34,13 +34,6 @@ interface WorkoutLogDetail {
   exercises: LoggedExercise[]
 }
 
-const difficultyColors: Record<string, string> = {
-  beginner:
-    "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-  intermediate:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-  advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-}
 
 export default function WorkoutLogDetailPage({
   params,

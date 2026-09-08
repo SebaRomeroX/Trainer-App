@@ -6,7 +6,9 @@ export interface IFeedback extends Document {
   trainerId: mongoose.Types.ObjectId;
   workoutLogId?: mongoose.Types.ObjectId;
   type: "client_to_trainer" | "trainer_to_client";
-  message: string;
+  difficultyRating: number;
+  enjoymentRating: number;
+  message?: string;
   read: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -22,7 +24,9 @@ const FeedbackSchema = new Schema<IFeedback>(
       enum: ["client_to_trainer", "trainer_to_client"],
       required: true,
     },
-    message: { type: String, required: true },
+    difficultyRating: { type: Number, required: true, min: 1, max: 5 },
+    enjoymentRating: { type: Number, required: true, min: 1, max: 5 },
+    message: { type: String },
     read: { type: Boolean, default: false },
   },
   { timestamps: true }
