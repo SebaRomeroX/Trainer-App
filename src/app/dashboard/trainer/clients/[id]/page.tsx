@@ -20,6 +20,7 @@ import { AssignedRoutinesList } from "@/components/clients/assigned-routines-lis
 import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
 import { RoutineChangeLog } from "@/components/routines/routine-change-log"
 import { ClientFeedback } from "@/components/feedback/client-feedback"
+import { RatingsChart } from "@/components/charts/ratings-chart"
 
 interface ClientData {
   _id: string
@@ -346,6 +347,13 @@ export default function ClientProfilePage() {
           Client Feedback
         </h2>
         <ClientFeedback clientId={params.id as string} />
+      </div>
+
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+        <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+          Ratings Over Time
+        </h2>
+        <RatingsChart clientId={params.id as string} />
       </div>
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">

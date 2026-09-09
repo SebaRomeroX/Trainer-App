@@ -329,7 +329,7 @@ Skipped items (pending future consideration):
   - [x] Client progress overview
   - [x] Recent workout activity feed
   - [x] Client completion rates
-  - [x] Average ratings chart
+  - [x] Ratings visual chart
 
 - [ ] **Client Management**
   - [x] Add/remove clients

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { StatsCards } from "@/components/workouts/stats-cards"
 import { WeeklyChart } from "@/components/workouts/weekly-chart"
+import { RatingsChart } from "@/components/charts/ratings-chart"
 import { Loader2 } from "lucide-react"
 
 interface StatsData {
@@ -94,6 +95,12 @@ export default function ProgressPage() {
         <>
           {stats && <StatsCards stats={stats} />}
           <WeeklyChart data={weekData} />
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+              Ratings Over Time
+            </h2>
+            <RatingsChart useSelf />
+          </div>
         </>
       ) : (
         <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-12 text-center">
