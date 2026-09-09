@@ -49,6 +49,7 @@ export default function FeedbackPage() {
     enjoymentRating: number
     message?: string
     workoutLogId?: string
+    routineId?: string
   }) => {
     const res = await fetch("/api/feedback", {
       method: "POST",

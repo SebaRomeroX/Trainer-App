@@ -339,7 +339,7 @@ Skipped items (pending future consideration):
 
 - [ ] **Routine Adjustments**
   - [x] View client workout logs
-  - [ ] Modify routine based on feedback
+  - [x] Modify routine based on feedback
   - [ ] Create progressive overload plans
   - [x] History of routine changes
 

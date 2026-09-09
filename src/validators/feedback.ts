@@ -1,6 +1,7 @@
 import * as z from "zod"
 
 export const CreateFeedbackSchema = z.object({
+  routineId: z.string().optional(),
   workoutLogId: z.string().optional(),
   difficultyRating: z.number().min(1).max(5, { error: "Difficulty must be 1-5." }),
   enjoymentRating: z.number().min(1).max(5, { error: "Enjoyment must be 1-5." }),

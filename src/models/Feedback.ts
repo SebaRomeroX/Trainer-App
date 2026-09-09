@@ -4,6 +4,7 @@ export interface IFeedback extends Document {
   _id: mongoose.Types.ObjectId;
   clientId: mongoose.Types.ObjectId;
   trainerId: mongoose.Types.ObjectId;
+  routineId?: mongoose.Types.ObjectId;
   workoutLogId?: mongoose.Types.ObjectId;
   type: "client_to_trainer" | "trainer_to_client";
   difficultyRating: number;
@@ -18,6 +19,7 @@ const FeedbackSchema = new Schema<IFeedback>(
   {
     clientId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     trainerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    routineId: { type: Schema.Types.ObjectId, ref: "Routine" },
     workoutLogId: { type: Schema.Types.ObjectId, ref: "WorkoutLog" },
     type: {
       type: String,

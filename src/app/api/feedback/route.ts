@@ -38,6 +38,7 @@ export async function GET(request: Request) {
         .skip(skip)
         .limit(limit)
         .populate("clientId", "name email")
+        .populate("routineId", "name")
         .lean(),
       Feedback.countDocuments(filter),
     ])

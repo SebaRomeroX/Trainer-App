@@ -1,10 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Send, Loader2, CheckCircle2 } from "lucide-react"
+
+interface AssignedRoutine {
+  _id: string
+  routineId: { _id: string; name: string } | string
+}
 
 interface FeedbackFormProps {
   onSubmit: (data: {
@@ -12,6 +17,7 @@ interface FeedbackFormProps {
     enjoymentRating: number
     message?: string
     workoutLogId?: string
+    routineId?: string
   }) => Promise<void>
 }
 
@@ -51,9 +57,26 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const [difficulty, setDifficulty] = useState<number | null>(null)
   const [enjoyment, setEnjoyment] = useState<number | null>(null)
   const [message, setMessage] = useState("")
+  const [routineId, setRoutineId] = useState<string>("")
+  const [routines, setRoutines] = useState<AssignedRoutine[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadRoutines() {
+      try {
+        const res = await fetch("/api/client-routines")
+        if (res.ok) {
+          const data = await res.json()
+          setRoutines(data.assignments || [])
+        }
+      } catch {
+        // ignore
+      }
+    }
+    loadRoutines()
+  }, [])
 
   const handleSubmit = async () => {
     if (!difficulty || !enjoyment) {
@@ -68,11 +91,13 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
         difficultyRating: difficulty,
         enjoymentRating: enjoyment,
         message: message.trim() || undefined,
+        routineId: routineId || undefined,
       })
       setSubmitted(true)
       setDifficulty(null)
       setEnjoyment(null)
       setMessage("")
+      setRoutineId("")
     } catch {
       setError("Failed to submit feedback. Please try again.")
     } finally {
@@ -115,6 +140,28 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
           onChange={setEnjoyment}
         />
       </div>
+
+      {routines.length > 0 && (
+        <div className="space-y-1">
+          <Label className="text-sm font-medium">Related Routine (optional)</Label>
+          <select
+            value={routineId}
+            onChange={(e) => setRoutineId(e.target.value)}
+            className="w-full rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 py-2 text-sm text-zinc-950 dark:text-zinc-100"
+          >
+            <option value="">General feedback</option>
+            {routines.map((a) => {
+              const name = typeof a.routineId === "object" ? a.routineId.name : "Routine"
+              const id = typeof a.routineId === "object" ? a.routineId._id : a.routineId
+              return (
+                <option key={a._id} value={id}>
+                  {name}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+      )}
 
       <div className="space-y-1">
         <Label className="text-sm font-medium">Message (optional)</Label>
