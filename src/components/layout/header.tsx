@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
 
 export function Header() {
   return (
@@ -27,9 +27,8 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Menu className="h-5 w-5 text-zinc-500" />
-          <span className="text-zinc-500 text-sm">Menu</span>
+        <div className="flex items-center gap-2">
+          <NotificationDropdown />
         </div>
       </div>
     </header>

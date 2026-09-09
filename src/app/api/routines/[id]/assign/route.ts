@@ -4,7 +4,9 @@ import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Routine } from "@/models/Routine"
 import { ClientRoutine } from "@/models/ClientRoutine"
 import { ClientProfile } from "@/models/ClientProfile"
+import { User } from "@/models/User"
 import { AssignRoutineSchema } from "@/validators/routine"
+import { createNotification } from "@/lib/notifications"
 
 export async function POST(
   request: Request,
@@ -103,6 +105,18 @@ export async function POST(
       startDate,
       status,
     })
+
+    const clientUser = await User.findById(clientProfile.userId).select("name").lean()
+    const clientName = clientUser?.name || "Your client"
+    const statusLabel = status === "scheduled" ? "scheduled" : "assigned"
+
+    createNotification({
+      userId: clientProfile.userId.toString(),
+      type: "routine_assigned",
+      title: `Routine ${statusLabel}`,
+      message: `${clientName}, your trainer assigned you "${routine.name}"`,
+      link: "/dashboard/client",
+    }).catch(console.error)
 
     return NextResponse.json({ assignment: clientRoutine }, { status: 201 })
   } catch (error) {

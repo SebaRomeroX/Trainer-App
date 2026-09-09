@@ -3,7 +3,9 @@ import { connectDB } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Feedback } from "@/models/Feedback"
 import { ClientProfile } from "@/models/ClientProfile"
+import { User } from "@/models/User"
 import { CreateFeedbackSchema } from "@/validators/feedback"
+import { createNotification } from "@/lib/notifications"
 
 export async function GET(request: Request) {
   try {
@@ -106,6 +108,17 @@ export async function POST(request: Request) {
       type: "client_to_trainer",
       ...validated.data,
     })
+
+    const client = await User.findById(session.userId).select("name").lean()
+    const clientName = client?.name || "A client"
+
+    createNotification({
+      userId: profile.trainerId.toString(),
+      type: "feedback",
+      title: `Feedback from ${clientName}`,
+      message: `Difficulty: ${validated.data.difficultyRating}/5, Enjoyment: ${validated.data.enjoymentRating}/5`,
+      link: "/dashboard/trainer/clients",
+    }).catch(console.error)
 
     return NextResponse.json({ feedback }, { status: 201 })
   } catch (error) {

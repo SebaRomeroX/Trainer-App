@@ -5,6 +5,7 @@ import { Message } from "@/models/Message"
 import { ClientProfile } from "@/models/ClientProfile"
 import { User } from "@/models/User"
 import { SendMessageSchema } from "@/validators/message"
+import { createNotification } from "@/lib/notifications"
 
 export async function GET(request: Request) {
   try {
@@ -189,6 +190,24 @@ export async function POST(request: Request) {
       receiverId: validated.data.receiverId,
       content: validated.data.content,
     })
+
+    const sender = await User.findById(session.userId).select("name").lean()
+    const senderName = sender?.name || "Someone"
+    const shortContent =
+      validated.data.content.length > 50
+        ? validated.data.content.slice(0, 50) + "..."
+        : validated.data.content
+
+    createNotification({
+      userId: validated.data.receiverId,
+      type: "message",
+      title: `New message from ${senderName}`,
+      message: shortContent,
+      link:
+        session.role === "trainer"
+          ? "/dashboard/trainer/messages"
+          : "/dashboard/client/messages",
+    }).catch(console.error)
 
     return NextResponse.json({ message }, { status: 201 })
   } catch (error) {
