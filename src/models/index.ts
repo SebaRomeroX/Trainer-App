@@ -7,3 +7,4 @@ export { WorkoutLog } from "./WorkoutLog";
 export { Feedback } from "./Feedback";
 export { ClientRoutine } from "./ClientRoutine";
 export { Message } from "./Message";
+export { RoutineChangeLog } from "./RoutineChangeLog";

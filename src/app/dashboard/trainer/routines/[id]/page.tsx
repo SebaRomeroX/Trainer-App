@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { RoutineForm } from "@/components/routines/routine-form"
+import { RoutineChangeLog } from "@/components/routines/routine-change-log"
 import type { CreateRoutineInput } from "@/validators/routine"
 import type { RoutineExerciseInput } from "@/validators/routine"
 
@@ -136,6 +137,13 @@ export default function EditRoutinePage() {
           onCancel={() => router.push("/dashboard/trainer/routines")}
           isLoading={isSubmitting}
         />
+      </div>
+
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+        <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+          Change History
+        </h2>
+        <RoutineChangeLog routineId={id} />
       </div>
     </div>
   )

@@ -341,12 +341,12 @@ Skipped items (pending future consideration):
   - [x] View client workout logs
   - [ ] Modify routine based on feedback
   - [ ] Create progressive overload plans
-  - [ ] History of routine changes
+  - [x] History of routine changes
 
 - [ ] **Communication**
   - [x] Direct messaging with clients
   - [x] Send encouragement/tips
-  - [ ] Notification system (in-app)
+  - [x] Notification system (in-app)
 
 #### Nice to Have
 - [ ] Export client reports (PDF)

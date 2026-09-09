@@ -18,6 +18,7 @@ import { ArrowLeft, UserPlus, Save, X, Star, Pencil } from "lucide-react"
 import Link from "next/link"
 import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
 import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
+import { RoutineChangeLog } from "@/components/routines/routine-change-log"
 
 interface ClientData {
   _id: string
@@ -337,6 +338,13 @@ export default function ClientProfilePage() {
           refreshKey={refreshKey}
           onRefresh={() => setRefreshKey((k) => k + 1)}
         />
+      </div>
+
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+        <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+          Routine Change History
+        </h2>
+        <RoutineChangeLog clientId={params.id as string} showRoutineName />
       </div>
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">

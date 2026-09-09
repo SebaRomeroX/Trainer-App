@@ -3,6 +3,7 @@ import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { ClientRoutine } from "@/models/ClientRoutine"
 import { ClientProfile } from "@/models/ClientProfile"
+import { logRoutineChange } from "@/lib/routine-changes"
 import * as z from "zod"
 
 const UpdateClientRoutineSchema = z.object({
@@ -73,6 +74,23 @@ export async function PUT(
       { $set: updateData },
       { new: true, runValidators: true }
     ).lean()
+
+    if (validated.data.status && validated.data.status !== assignment.status) {
+      logRoutineChange({
+        routineId: assignment.routineId.toString(),
+        clientId: assignment.clientId.toString(),
+        trainerId: session.userId.toString(),
+        changeType: "status_changed",
+        description: `Status changed from "${assignment.status}" to "${validated.data.status}"`,
+        changes: [
+          {
+            field: "status",
+            before: assignment.status,
+            after: validated.data.status,
+          },
+        ],
+      }).catch(console.error)
+    }
 
     return NextResponse.json({ assignment: updated })
   } catch (error) {

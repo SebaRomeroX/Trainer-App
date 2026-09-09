@@ -7,6 +7,7 @@ import { ClientProfile } from "@/models/ClientProfile"
 import { User } from "@/models/User"
 import { AssignRoutineSchema } from "@/validators/routine"
 import { createNotification } from "@/lib/notifications"
+import { logRoutineChange } from "@/lib/routine-changes"
 
 export async function POST(
   request: Request,
@@ -118,6 +119,14 @@ export async function POST(
       link: "/dashboard/client",
     }).catch(console.error)
 
+    logRoutineChange({
+      routineId: id,
+      clientId: validated.data.clientId,
+      trainerId: session.userId.toString(),
+      changeType: "assigned",
+      description: `Assigned "${routine.name}" to ${clientName}${status === "scheduled" ? " (scheduled)" : ""}`,
+    }).catch(console.error)
+
     return NextResponse.json({ assignment: clientRoutine }, { status: 201 })
   } catch (error) {
     if (error instanceof UnauthorizedError) {
@@ -175,6 +184,17 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    const clientUser = await User.findById(clientProfile.userId).select("name").lean()
+    const clientName = clientUser?.name || "client"
+
+    logRoutineChange({
+      routineId: id,
+      clientId: body.clientId,
+      trainerId: session.userId.toString(),
+      changeType: "unassigned",
+      description: `Unassigned routine from ${clientName}`,
+    }).catch(console.error)
 
     return NextResponse.json({ message: "Routine unassigned." })
   } catch (error) {

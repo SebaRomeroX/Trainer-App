@@ -3,6 +3,7 @@ import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Routine } from "@/models/Routine"
 import { UpdateRoutineSchema } from "@/validators/routine"
+import { logRoutineChange } from "@/lib/routine-changes"
 
 export async function GET(
   _request: Request,
@@ -67,18 +68,45 @@ export async function PUT(
 
     await connectDB()
 
+    const oldRoutine = await Routine.findOne({
+      _id: id,
+      trainerId: session.userId,
+    }).lean()
+
+    if (!oldRoutine) {
+      return NextResponse.json(
+        { error: "Routine not found." },
+        { status: 404 }
+      )
+    }
+
     const routine = await Routine.findOneAndUpdate(
       { _id: id, trainerId: session.userId },
       { $set: validated.data },
       { new: true, runValidators: true }
     ).lean()
 
-    if (!routine) {
-      return NextResponse.json(
-        { error: "Routine not found." },
-        { status: 404 }
-      )
+    const changes: { field: string; before: unknown; after: unknown }[] = []
+    for (const [key, value] of Object.entries(validated.data)) {
+      const oldVal = JSON.stringify(oldRoutine[key as keyof typeof oldRoutine])
+      const newVal = JSON.stringify(value)
+      if (oldVal !== newVal) {
+        changes.push({
+          field: key,
+          before: oldRoutine[key as keyof typeof oldRoutine],
+          after: value,
+        })
+      }
     }
+
+    const fieldNames = changes.map((c) => c.field).join(", ")
+    logRoutineChange({
+      routineId: id,
+      trainerId: session.userId.toString(),
+      changeType: "routine_updated",
+      description: `Routine updated: ${fieldNames}`,
+      changes,
+    }).catch(console.error)
 
     return NextResponse.json({ routine })
   } catch (error) {
