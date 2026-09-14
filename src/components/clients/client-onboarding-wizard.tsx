@@ -92,7 +92,6 @@ export function ClientOnboardingWizard({
     setValue,
     watch,
     formState: { errors },
-    getValues,
   } = useForm({
     resolver: zodResolver(CreateClientSchema),
     defaultValues: {
