@@ -2,18 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { ClientForm } from "@/components/clients/client-form"
+import { ClientOnboardingWizard } from "@/components/clients/client-onboarding-wizard"
 import { ClientTable } from "@/components/clients/client-table"
 import { ClientDeleteDialog } from "@/components/clients/client-delete-dialog"
 import { Plus, Search } from "lucide-react"
-import type { CreateClientInput } from "@/validators/client"
 
 interface ClientUser {
   _id: string
@@ -35,8 +28,7 @@ export default function ClientsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
 
-  const [formOpen, setFormOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [wizardOpen, setWizardOpen] = useState(false)
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
@@ -68,23 +60,6 @@ export default function ClientsPage() {
       client.userId.email.toLowerCase().includes(query)
     )
   })
-
-  const handleCreate = async (data: CreateClientInput) => {
-    setIsSubmitting(true)
-    try {
-      const res = await fetch("/api/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      })
-      if (res.ok) {
-        setFormOpen(false)
-        fetchClients()
-      }
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
 
   const handleDelete = async () => {
     if (!deletingClient) return
@@ -119,7 +94,7 @@ export default function ClientsPage() {
             Manage your assigned clients.
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
+        <Button onClick={() => setWizardOpen(true)}>
           <Plus className="size-4" />
           Add Client
         </Button>
@@ -146,18 +121,11 @@ export default function ClientsPage() {
         />
       )}
 
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add New Client</DialogTitle>
-          </DialogHeader>
-          <ClientForm
-            onSubmit={handleCreate}
-            onCancel={() => setFormOpen(false)}
-            isLoading={isSubmitting}
-          />
-        </DialogContent>
-      </Dialog>
+      <ClientOnboardingWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onComplete={fetchClients}
+      />
 
       <ClientDeleteDialog
         open={deleteOpen}

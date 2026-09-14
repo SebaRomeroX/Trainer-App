@@ -80,12 +80,6 @@ export function ClientForm({ onSubmit, onCancel, isLoading }: ClientFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label>Initial Password</Label>
-        <Input value="Set to client's name" disabled className="text-zinc-500" />
-        <p className="text-xs text-zinc-500">Password will be set to the client&apos;s name. They can change it after logging in.</p>
-      </div>
-
-      <div className="space-y-2">
         <Label>Fitness Level</Label>
         <Select
           value={fitnessLevel}
