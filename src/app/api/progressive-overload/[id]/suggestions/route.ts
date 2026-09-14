@@ -18,7 +18,11 @@ export async function GET(
     if (invalid) return invalid
 
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get("status") || "pending"
+    const status = (searchParams.get("status") || "pending") as
+      | "pending"
+      | "approved"
+      | "denied"
+      | "applied"
 
     await connectDB()
 
