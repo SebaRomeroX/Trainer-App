@@ -1,0 +1,264 @@
+============================================================
+       TRAINER-APP BUG FIX TRACKER
+============================================================
+Mark [x] when fixed. Add notes after each item as needed.
+
+============================================================
+ CRITICAL / HIGH SEVERITY
+============================================================
+
+[ ] 1. IDOR on messages GET endpoint
+    File: src/app/api/messages/route.ts (lines 21, 32-46)
+    Problem: GET ?with= param lets any user query conversations
+             with ANY user. No ownership/authorization check.
+    Fix: Validate that otherUserId is the user's trainer or
+         one of their assigned clients before querying.
+
+[ ] 2. Access token leaked in JSON response body
+    Files: src/app/api/auth/login/route.ts (line 60)
+           src/app/api/auth/register/route.ts (line 63)
+           src/app/api/auth/refresh/route.ts (line 51)
+    Problem: Token returned in body AND set as httpOnly cookie.
+             Body access negates httpOnly XSS protection.
+    Fix: Remove accessToken from JSON response body. Only use
+         httpOnly cookie for transport.
+
+[ ] 3. No refresh token revocation on logout
+    Files: src/app/api/auth/logout/route.ts (lines 7-11)
+           src/app/api/auth/refresh/route.ts (lines 44-48)
+    Problem: Logout only deletes cookies. Stolen refresh tokens
+             remain valid for up to 7 days.
+    Fix: Add server-side token blocklist (Redis or DB collection)
+         or implement refresh token rotation with storage.
+
+[ ] 4. Password reset endpoint is non-functional
+    File: src/app/api/auth/reset-password/route.ts (lines 28-34)
+    Problem: No reset token generated, no email sent. Returns
+             fake success response.
+    Fix: Generate a time-limited reset token, store in DB,
+         send via email, validate on submission.
+
+[ ] 5. Inconsistent [id] parameter semantics across client routes
+    Files: src/app/api/clients/[id]/routine-changes/route.ts (line 20)
+           src/app/api/clients/[id]/feedback/route.ts (lines 20-21)
+           src/app/api/clients/[id]/ratings/route.ts (lines 24-27)
+    Problem: Some routes treat [id] as ClientProfile._id, others
+             as User._id. Half the sub-resource endpoints break.
+    Fix: Standardize all [id] routes to use ClientProfile._id.
+         Look up userId from profile where needed.
+
+[ ] 6. Race condition: non-atomic client creation
+    File: src/app/api/clients/route.ts (lines 61-86)
+    Problem: User.create + ClientProfile.create not in transaction.
+             If profile fails, orphaned User remains.
+    Fix: Wrap in MongoDB transaction, or create profile first
+         and let User creation fail cleanly.
+
+[ ] 7. Race condition: duplicate routine assignment
+    File: src/app/api/routines/[id]/assign/route.ts (lines 55-108)
+    Problem: Duplicate check + create are not atomic. Concurrent
+             requests create duplicate active assignments.
+    Fix: UsefindOneAndUpdate with upsert or add a unique compound
+         index on (clientId, routineId, status).
+
+[ ] 8. Race condition: duplicate progressive overload plan
+    File: src/app/api/progressive-overload/route.ts (lines 102-128)
+    Problem: Same check-then-create pattern as bug #7.
+    Fix: Use atomic upsert or unique compound index.
+
+[ ] 9. TOCTOU: stale exercise index in suggestion resolve
+    File: src/app/api/progressive-overload/suggestions/[id]/resolve/route.ts
+          (lines 76-98)
+    Problem: Exercise array index read then used for $set.
+             Concurrent modifications write to wrong element.
+    Fix: Fetch exercise by exerciseId within the routine and use
+         positional operator ($) instead of manual index.
+
+[ ] 10. Dashboard loads all data into memory (OOM risk)
+     File: src/app/api/trainer/dashboard/route.ts (lines 25-33)
+     Problem: No limit() or date filter on WorkoutLog/ClientRoutine
+              queries. Crashes with large datasets.
+     Fix: Add date range filters, use aggregation pipelines,
+          paginate results, add .limit().
+
+
+============================================================
+ MEDIUM SEVERITY
+============================================================
+
+[ ] 11. Orphaned RoutineChangeLog on client deletion
+     File: src/app/api/clients/[id]/route.ts (lines 147-166)
+     Problem: RoutineChangeLog.deleteMany missing from cleanup.
+     Fix: Add RoutineChangeLog.deleteMany({ clientId: userId })
+          to the Promise.all array.
+
+[ ] 12. Orphaned references on exercise deletion
+     File: src/app/api/exercises/[id]/route.ts (lines 110-125)
+     Problem: ProgressiveOverloadPlan, OverloadSuggestion, and
+              WorkoutLog retain stale exerciseId refs.
+     Fix: Add $pull/cleanup for all three collections.
+
+[ ] 13. Orphaned ClientRoutine on routine deletion
+     File: src/app/api/routines/[id]/route.ts (lines 139-142)
+     Problem: ClientRoutine records not cleaned up.
+     Fix: Add ClientRoutine.deleteMany({ routineId: id }).
+
+[ ] 14. No rate limiting on auth endpoints
+     Files: src/app/api/auth/login/route.ts
+            src/app/api/auth/register/route.ts
+     Problem: No brute-force or mass-registration protection.
+     Fix: Implement rate limiting middleware (e.g., 5 req/min
+          per IP on auth routes).
+
+[ ] 15. Timezone bugs in date comparisons
+     Files: src/app/api/routines/[id]/assign/route.ts (lines 80-82)
+            src/app/api/workout-logs/stats/route.ts (lines 14-16)
+            src/app/api/trainer/dashboard/route.ts (lines 15-17)
+     Problem: toISOString() uses UTC, setHours uses server-local.
+              Cross-timezone stats are wrong.
+     Fix: Use UTC consistently or accept user timezone from client.
+
+[ ] 16. Type mismatch in aggregation pipeline
+     File: src/app/api/workout-logs/stats/route.ts (lines 31-34)
+     Problem: String userId compared to ObjectId clientId in
+              $match. aggregate() doesn't auto-cast.
+     Fix: Wrap in mongoose.Types.ObjectId or use $expr with
+          $toObjectId.
+
+[ ] 17. Stale endDate on routine reactivation
+     File: src/app/api/client-routines/[id]/route.ts (lines 65-70)
+     Problem: endDate set on pause/complete, never cleared on
+              reactivation.
+     Fix: Add endDate: null when status changes to "active".
+
+[ ] 18. Resource existence leak (IDOR probe)
+     File: src/app/api/client-routines/[id]/route.ts (lines 35-57)
+     Problem: Assignment fetched without ownership filter.
+              Returns 403 instead of 404, leaking existence.
+     Fix: For clients, add clientId filter to the initial query.
+          Return 404 when not found.
+
+[ ] 19. Missing ObjectId validation on several routes
+     Files: src/app/api/routines/[id]/assign/route.ts (lines 18, 44, 151, 154)
+            src/app/api/notifications/[id]/read/route.ts (line 12)
+     Problem: Invalid IDs cause Mongoose CastError -> 500.
+     Fix: Call validateObjectId() before using params.
+
+[ ] 20. Missing ForbiddenError handling in client ratings
+     File: src/app/api/clients/me/ratings/route.ts (lines 42-51)
+     Problem: ForbiddenError not imported/handled. Returns 500.
+     Fix: Import ForbiddenError, add catch branch returning 403.
+
+[ ] 21. Race condition in overload suggestion generation
+     File: src/lib/overload-suggestions.ts (lines 109-113, 161-167)
+     Problem: Concurrent calls can create duplicate suggestions.
+     Fix: Use atomic upsert or add unique compound index on
+          (exerciseId, status: "pending").
+
+[ ] 22. Non-integer rep suggestions
+     File: src/lib/overload-suggestions.ts (line 81)
+     Problem: avgReps + 1 produces floats (e.g. 8.5).
+     Fix: Wrap in Math.round() before storing.
+
+[ ] 23. Missing model exports in barrel file
+     File: src/models/index.ts
+     Problem: Notification, OverloadSuggestion,
+              ProgressiveOverloadPlan not exported.
+     Fix: Add missing exports.
+
+[ ] 24. RoutineChangeLog interface/schema enum mismatch
+     File: src/models/RoutineChangeLog.ts (lines 8-12 vs 38-46)
+     Problem: TS interface missing "overload_adjustment" variant.
+     Fix: Add "overload_adjustment" to the TS union type.
+
+[ ] 25. Broken cn import in UI components
+     Files: src/components/ui/checkbox.tsx (line 4)
+            src/components/ui/card.tsx (line 2)
+            src/components/ui/chart.tsx (line 4)
+     Problem: Import from "cn" instead of "@/lib/utils".
+     Fix: Change import to "@/lib/utils".
+
+
+============================================================
+ LOW SEVERITY
+============================================================
+
+[ ] 26. Silent error swallowing in auth routes
+     Files: All auth route catch blocks
+     Problem: No console.error -- server errors discarded.
+     Fix: Add console.error(error) in catch blocks.
+
+[ ] 27. No pagination on several endpoints
+     Files: clients/me/routines, clients/me/ratings,
+            clients/[id]/routines, clients/[id]/feedback,
+            clients/[id]/ratings
+     Problem: Returns all documents with no .limit().
+     Fix: Add .limit(50) or cursor-based pagination.
+
+[ ] 28. Missing int() on setsCompleted
+     File: src/validators/workout-log.ts (line 5)
+     Problem: Floats like 2.5 accepted.
+     Fix: Add .int() to the Zod schema.
+
+[ ] 29. Negative weight/duration allowed
+     File: src/validators/workout-log.ts (lines 7-8)
+     Problem: No .min(0) constraint.
+     Fix: Add .min(0) to weight and duration fields.
+
+[ ] 30. defaultValue sync bug on array inputs
+     Files: src/components/clients/client-form.tsx (line 106)
+            src/components/exercises/exercise-form.tsx (line 148)
+     Problem: Goals/muscle groups only sync on blur.
+              Submit without blur loses data.
+     Fix: Use controlled inputs or sync on change.
+
+[ ] 31. Missing AbortController in useEffect fetches
+     Files: src/components/routines/overload-suggestions.tsx (line 52)
+            src/components/clients/client-onboarding-wizard.tsx (line 145)
+     Problem: No cancellation -- stale responses overwrite state.
+     Fix: Use AbortController, check signal.aborted before setState.
+
+[ ] 32. Header hardcodes trainer dashboard link
+     File: src/components/layout/header.tsx (lines 16-21)
+     Problem: "Dashboard" link always points to /dashboard/trainer.
+     Fix: Make role-aware using useAuth() or pass role prop.
+
+[ ] 33. Invalid hover class in header
+     File: src/components/layout/header.tsx (lines 17, 23)
+     Problem: "hover" without modifier does nothing.
+     Fix: Change to "hover:underline".
+
+[ ] 34. Missing media fields in exercise validator
+     File: src/validators/exercise.ts
+     Problem: videoUrl/imageUrl in model but not in validator.
+     Fix: Add optional fields to CreateExerciseSchema and
+          UpdateExerciseSchema.
+
+[ ] 35. Redundant indexes on profile models
+     Files: src/models/ClientProfile.ts (line 33)
+            src/models/TrainerProfile.ts (line 23)
+     Problem: userId has unique:true AND explicit index().
+     Fix: Remove the explicit Schema.index() calls.
+
+
+============================================================
+ ADDITIONAL NOTES
+============================================================
+
+- Consider adding a CSRF token mechanism for POST endpoints
+  that rely on cookie-based auth (sameSite: lax is not enough).
+
+- Add structured logging (e.g., pino/winston) instead of
+  raw console.error for production observability.
+
+- Add MongoDB transactions for multi-document writes
+  (client creation, client deletion, suggestion resolution).
+
+- Add a password reset flow with email integration (e.g.,
+  Resend, SendGrid, or Nodemailer).
+
+- Consider adding request body size limits and input
+  sanitization middleware.
+
+- Add E2E tests for the authorization flows (trainer vs client
+  role access on each endpoint).
