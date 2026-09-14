@@ -24,7 +24,7 @@ export async function GET() {
         goals: profile.goals,
         notes: profile.notes,
         startDate: profile.startDate,
-        hasCompletedOnboarding: profile.hasCompletedOnboarding,
+        hasCompletedOnboarding: profile.hasCompletedOnboarding ?? false,
       },
       trainer: profile.trainerId
         ? {

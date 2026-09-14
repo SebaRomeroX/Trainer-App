@@ -333,7 +333,7 @@ Skipped items (pending future consideration):
 
 - [ ] **Client Management**
   - [x] Add/remove clients
-  - [ ] Client onboarding flow
+  - [x] Client onboarding flow
   - [x] Set client goals
   - [x] Add private notes per client
 
@@ -626,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.4 Trainer Tools (Phase 1-3 complete: Dashboard, Messaging, Client Management)
-**Next Step**: v0.4 Polish - Client onboarding flow, routine adjustment features, notification system
+**Status**: In Progress - v0.4 Trainer Tools (Phase 1-3 complete: Dashboard, Messaging, Client Management + Onboarding)
+**Next Step**: v0.4 Remaining - Progressive overload plans; then v0.5 Polish & Testing
