@@ -129,12 +129,18 @@ export function ProgressiveOverloadDialog({
     }
   }, [open, existingPlan, routineExerciseIds])
 
-  useEffect(() => {
-    if (!open) {
-      setTargets([])
-      setError("")
-    }
-  }, [open])
+  function handleClose() {
+    setTargets([])
+    setError("")
+    onOpenChange(false)
+  }
+
+  function handleSavedClose() {
+    setTargets([])
+    setError("")
+    onSaved()
+    onOpenChange(false)
+  }
 
   function updateTarget(
     index: number,
@@ -209,8 +215,7 @@ export function ProgressiveOverloadDialog({
         return
       }
 
-      onSaved()
-      onOpenChange(false)
+      handleSavedClose()
     } catch {
       setError("Something went wrong.")
     } finally {
@@ -349,7 +354,7 @@ export function ProgressiveOverloadDialog({
         <DialogFooter>
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleClose}
             disabled={isLoading}
           >
             Cancel
