@@ -14,13 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowLeft, UserPlus, Save, X, Star, Pencil } from "lucide-react"
+import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
 import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
 import { RoutineChangeLog } from "@/components/routines/routine-change-log"
 import { ClientFeedback } from "@/components/feedback/client-feedback"
 import { RatingsChart } from "@/components/charts/ratings-chart"
+import { ProgressiveOverloadDialog } from "@/components/routines/progressive-overload-dialog"
+import { OverloadSuggestions } from "@/components/routines/overload-suggestions"
 
 interface ClientData {
   _id: string
@@ -45,6 +47,28 @@ interface WorkoutLogEntry {
   rating?: number
   notes?: string
   exercises: { completed: boolean }[]
+}
+
+interface AssignmentEntry {
+  _id: string
+  routine: { _id: string; name: string; exercises?: { exerciseId: string }[] } | null
+  status: "active" | "scheduled" | "completed" | "paused"
+}
+
+interface PlanExerciseEntry {
+  exerciseId: { _id: string; name: string } | string
+  targetWeight?: number
+  targetReps?: number
+  targetSets?: number
+  targetDate: string
+  notes?: string
+}
+
+interface OverloadPlan {
+  _id: string
+  clientRoutineId: string
+  exercises: PlanExerciseEntry[]
+  status: string
 }
 
 const fitnessLevelColors: Record<string, string> = {
@@ -78,13 +102,18 @@ export default function ClientProfilePage() {
   const [notesInput, setNotesInput] = useState("")
   const [isSaving, setIsSaving] = useState(false)
 
+  const [assignments, setAssignments] = useState<AssignmentEntry[]>([])
+  const [overloadPlan, setOverloadPlan] = useState<OverloadPlan | null>(null)
+  const [overloadDialogOpen, setOverloadDialogOpen] = useState(false)
+
   useEffect(() => {
     let cancelled = false
     async function load() {
       try {
-        const [clientRes, logsRes] = await Promise.all([
+        const [clientRes, logsRes, routinesRes] = await Promise.all([
           fetch(`/api/clients/${params.id}`),
           fetch(`/api/clients/${params.id}/workout-logs`),
+          fetch(`/api/clients/${params.id}/routines`),
         ])
 
         if (!cancelled && clientRes.ok) {
@@ -99,6 +128,25 @@ export default function ClientProfilePage() {
         if (!cancelled && logsRes.ok) {
           const logsData = await logsRes.json()
           setWorkoutLogs(logsData.logs || [])
+        }
+
+        if (!cancelled && routinesRes.ok) {
+          const routinesData = await routinesRes.json()
+          const assigns = routinesData.routines || []
+          setAssignments(assigns)
+
+          const active = assigns.find(
+            (a: AssignmentEntry) => a.status === "active"
+          )
+          if (active) {
+            const planRes = await fetch(
+              `/api/progressive-overload?clientRoutineId=${active._id}`
+            )
+            if (!cancelled && planRes.ok) {
+              const planData = await planRes.json()
+              setOverloadPlan(planData.plan || null)
+            }
+          }
         }
       } catch {
         if (!cancelled) setError("Failed to load client.")
@@ -341,6 +389,90 @@ export default function ClientProfilePage() {
           onRefresh={() => setRefreshKey((k) => k + 1)}
         />
       </div>
+
+      {(() => {
+        const activeAssignment = assignments.find(
+          (a) => a.status === "active"
+        )
+        if (!activeAssignment) return null
+
+        const routineExerciseIds =
+          activeAssignment.routine?.exercises?.map((e) => e.exerciseId) || []
+
+        return (
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+                <TrendingUp className="size-5" />
+                Progressive Overload
+              </h2>
+              <Button
+                size="sm"
+                onClick={() => setOverloadDialogOpen(true)}
+              >
+                {overloadPlan ? "Edit Plan" : "Create Plan"}
+              </Button>
+            </div>
+
+            {overloadPlan ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  {overloadPlan.exercises.map((ex, i) => {
+                    const name =
+                      typeof ex.exerciseId === "object"
+                        ? ex.exerciseId.name
+                        : "Exercise"
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-sm rounded border border-zinc-100 dark:border-zinc-800 p-3"
+                      >
+                        <span className="font-medium text-zinc-950 dark:text-zinc-100">
+                          {name}
+                        </span>
+                        <div className="flex gap-3 text-zinc-500">
+                          {ex.targetWeight !== undefined && (
+                            <span>{ex.targetWeight}kg</span>
+                          )}
+                          {ex.targetReps !== undefined && (
+                            <span>{ex.targetReps} reps</span>
+                          )}
+                          {ex.targetSets !== undefined && (
+                            <span>{ex.targetSets} sets</span>
+                          )}
+                          <span className="text-zinc-400">
+                            by{" "}
+                            {new Date(ex.targetDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <OverloadSuggestions
+                  planId={overloadPlan._id}
+                  onRefresh={() => setRefreshKey((k) => k + 1)}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-500">
+                No overload plan for the active routine. Create one to start
+                tracking progression targets.
+              </p>
+            )}
+
+            <ProgressiveOverloadDialog
+              open={overloadDialogOpen}
+              onOpenChange={setOverloadDialogOpen}
+              clientRoutineId={activeAssignment._id}
+              routineExerciseIds={routineExerciseIds}
+              existingPlan={overloadPlan}
+              onSaved={() => setRefreshKey((k) => k + 1)}
+            />
+          </div>
+        )
+      })()}
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
         <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">

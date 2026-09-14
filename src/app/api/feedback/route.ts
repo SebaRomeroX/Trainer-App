@@ -6,6 +6,7 @@ import { ClientProfile } from "@/models/ClientProfile"
 import { User } from "@/models/User"
 import { CreateFeedbackSchema } from "@/validators/feedback"
 import { createNotification } from "@/lib/notifications"
+import { generateSuggestionsForFeedback } from "@/lib/overload-suggestions"
 
 export async function GET(request: Request) {
   try {
@@ -120,6 +121,13 @@ export async function POST(request: Request) {
       message: `Difficulty: ${validated.data.difficultyRating}/5, Enjoyment: ${validated.data.enjoymentRating}/5`,
       link: "/dashboard/trainer/clients",
     }).catch(console.error)
+
+    if (validated.data.routineId) {
+      generateSuggestionsForFeedback(
+        session.userId,
+        validated.data.routineId
+      ).catch(console.error)
+    }
 
     return NextResponse.json({ feedback }, { status: 201 })
   } catch (error) {

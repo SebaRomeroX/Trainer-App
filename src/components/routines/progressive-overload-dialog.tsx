@@ -32,9 +32,14 @@ interface PlanExercise {
 interface PlanData {
   _id: string
   clientRoutineId: string
-  exercises: (PlanExercise & {
-    exerciseId: { _id: string; name: string; category: string }
-  })[]
+  exercises: {
+    exerciseId: { _id: string; name: string; category?: string } | string
+    targetWeight?: number
+    targetReps?: number
+    targetSets?: number
+    targetDate: string
+    notes?: string
+  }[]
   status: string
 }
 
@@ -78,19 +83,22 @@ export function ProgressiveOverloadDialog({
 
           if (existingPlan) {
             setTargets(
-              existingPlan.exercises.map((e) => ({
-                exerciseId:
-                  typeof e.exerciseId === "string"
-                    ? e.exerciseId
-                    : e.exerciseId._id,
-                targetWeight: e.targetWeight,
-                targetReps: e.targetReps,
-                targetSets: e.targetSets,
-                targetDate: e.targetDate
-                  ? new Date(e.targetDate).toISOString().split("T")[0]
-                  : "",
-                notes: e.notes,
-              }))
+              existingPlan.exercises.map((e) => {
+                const exId =
+                  typeof e.exerciseId === "object" && e.exerciseId !== null
+                    ? e.exerciseId._id
+                    : (e.exerciseId as string)
+                return {
+                  exerciseId: exId,
+                  targetWeight: e.targetWeight,
+                  targetReps: e.targetReps,
+                  targetSets: e.targetSets,
+                  targetDate: e.targetDate
+                    ? new Date(e.targetDate).toISOString().split("T")[0]
+                    : "",
+                  notes: e.notes,
+                }
+              })
             )
           } else {
             setTargets(

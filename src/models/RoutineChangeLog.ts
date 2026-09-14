@@ -42,6 +42,7 @@ const RoutineChangeLogSchema = new Schema<IRoutineChangeLog>(
         "assigned",
         "unassigned",
         "status_changed",
+        "overload_adjustment",
       ],
       required: true,
     },

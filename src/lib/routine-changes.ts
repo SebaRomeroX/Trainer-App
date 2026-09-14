@@ -16,6 +16,7 @@ interface LogRoutineChangeParams {
     | "assigned"
     | "unassigned"
     | "status_changed"
+    | "overload_adjustment"
   description: string
   changes?: LogChange[]
 }
