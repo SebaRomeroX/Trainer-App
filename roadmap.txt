@@ -337,10 +337,10 @@ Skipped items (pending future consideration):
   - [x] Set client goals
   - [x] Add private notes per client
 
-- [ ] **Routine Adjustments**
+- [x] **Routine Adjustments**
   - [x] View client workout logs
   - [x] Modify routine based on feedback
-  - [ ] Create progressive overload plans
+  - [x] Create progressive overload plans
   - [x] History of routine changes
 
 - [ ] **Communication**
@@ -626,5 +626,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.4 Trainer Tools (Phase 1-3 complete: Dashboard, Messaging, Client Management + Onboarding)
-**Next Step**: v0.4 Remaining - Progressive overload plans; then v0.5 Polish & Testing
+**Status**: In Progress - v0.4 Complete (All items done)
+**Next Step**: v0.5 Polish & Testing
