@@ -13,6 +13,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import Link from "next/link"
+import { WelcomeWizard } from "@/components/client/welcome-wizard"
 
 interface RoutineData {
   _id: string
@@ -37,6 +38,16 @@ interface Stats {
   currentStreak: number
 }
 
+interface ClientProfile {
+  fitnessLevel: string
+  goals: string[]
+  hasCompletedOnboarding: boolean
+}
+
+interface TrainerProfile {
+  name: string
+}
+
 const difficultyColors: Record<string, string> = {
   beginner:
     "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
@@ -48,21 +59,26 @@ const difficultyColors: Record<string, string> = {
 export default function ClientDashboardPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(null)
+  const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState(false)
+  const [showWelcomeWizard, setShowWelcomeWizard] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     async function fetchData() {
       try {
-        const [routinesRes, statsRes] = await Promise.all([
+        const [routinesRes, statsRes, profileRes] = await Promise.all([
           fetch("/api/clients/me/routines"),
           fetch("/api/workout-logs/stats"),
+          fetch("/api/clients/me"),
         ])
 
-        const [routinesData, statsData] = await Promise.all([
+        const [routinesData, statsData, profileData] = await Promise.all([
           routinesRes.ok ? routinesRes.json() : Promise.resolve(null),
           statsRes.ok ? statsRes.json() : Promise.resolve(null),
+          profileRes.ok ? profileRes.json() : Promise.resolve(null),
         ])
 
         if (!cancelled) {
@@ -78,6 +94,16 @@ export default function ClientDashboardPage() {
               currentStreak: statsData.currentStreak,
             })
           }
+
+          if (profileData?.client) {
+            setClientProfile(profileData.client)
+            if (!profileData.client.hasCompletedOnboarding) {
+              setShowWelcomeWizard(true)
+            }
+          }
+          if (profileData?.trainer) {
+            setTrainerProfile(profileData.trainer)
+          }
         }
       } catch {
         if (!cancelled) setFetchError(true)
@@ -88,6 +114,13 @@ export default function ClientDashboardPage() {
     fetchData()
     return () => { cancelled = true }
   }, [])
+
+  const handleWizardComplete = () => {
+    setClientProfile((prev) =>
+      prev ? { ...prev, hasCompletedOnboarding: true } : null
+    )
+    setShowWelcomeWizard(false)
+  }
 
   const activeAssignment = assignments.find((a) => a.status === "active")
   const scheduledAssignment = assignments.find((a) => a.status === "scheduled")
@@ -218,6 +251,17 @@ export default function ClientDashboardPage() {
             </div>
           </Link>
         </>
+      )}
+
+      {clientProfile && trainerProfile && (
+        <WelcomeWizard
+          open={showWelcomeWizard}
+          onOpenChange={setShowWelcomeWizard}
+          client={clientProfile}
+          trainer={trainerProfile}
+          activeAssignment={activeAssignment ?? null}
+          onComplete={handleWizardComplete}
+        />
       )}
     </div>
   )

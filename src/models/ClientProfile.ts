@@ -8,6 +8,7 @@ export interface IClientProfile extends Document {
   goals: string[];
   notes?: string;
   startDate?: Date;
+  hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,7 @@ const ClientProfileSchema = new Schema<IClientProfile>(
     goals: [{ type: String }],
     notes: { type: String },
     startDate: { type: Date },
+    hasCompletedOnboarding: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
