@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -136,7 +137,11 @@ export function ClientOnboardingWizard({
         setCreatedClient(result.client)
         setTempPassword(result.tempPassword)
         setStep(1)
+      } else {
+        toast.error("Failed to create client")
       }
+    } catch {
+      toast.error("Failed to create client")
     } finally {
       setIsSubmitting(false)
     }
@@ -166,7 +171,11 @@ export function ClientOnboardingWizard({
       })
       if (res.ok) {
         setStep(3)
+      } else {
+        toast.error("Failed to assign routine")
       }
+    } catch {
+      toast.error("Failed to assign routine")
     } finally {
       setIsAssigning(false)
     }

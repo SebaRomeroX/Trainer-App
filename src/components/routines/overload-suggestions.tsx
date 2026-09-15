@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -63,7 +64,7 @@ export function OverloadSuggestions({
           setSuggestions(data.suggestions)
         }
       } catch {
-        // silent
+        toast.error("Failed to load suggestions")
       } finally {
         setIsLoading(false)
       }
@@ -85,7 +86,7 @@ export function OverloadSuggestions({
         setSuggestions(data.suggestions)
       }
     } catch {
-      // silent
+      toast.error("Failed to load suggestions")
     } finally {
       setIsLoading(false)
     }
@@ -118,9 +119,11 @@ export function OverloadSuggestions({
         setEditValues({})
         loadSuggestions()
         onRefresh?.()
+      } else {
+        toast.error("Failed to resolve suggestion")
       }
     } catch {
-      // silent
+      toast.error("Failed to resolve suggestion")
     } finally {
       setResolving(null)
     }
@@ -136,9 +139,11 @@ export function OverloadSuggestions({
       if (res.ok) {
         loadSuggestions()
         onRefresh?.()
+      } else {
+        toast.error("Failed to check suggestions")
       }
     } catch {
-      // silent
+      toast.error("Failed to check suggestions")
     } finally {
       setIsChecking(false)
     }

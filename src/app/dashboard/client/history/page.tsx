@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { WorkoutHistoryTable } from "@/components/workouts/workout-history-table"
 import { Loader2 } from "lucide-react"
 
@@ -48,8 +49,8 @@ export default function WorkoutHistoryPage() {
             setPagination(data.pagination)
           }
         }
-      } catch (error) {
-        console.error("Failed to load workout history:", error)
+      } catch {
+        toast.error("Failed to load workout history")
       } finally {
         if (!cancelled) setIsLoading(false)
       }

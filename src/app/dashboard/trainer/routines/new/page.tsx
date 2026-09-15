@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { RoutineForm } from "@/components/routines/routine-form"
 import type { CreateRoutineInput } from "@/validators/routine"
@@ -19,7 +20,11 @@ export default function NewRoutinePage() {
       })
       if (res.ok) {
         router.push("/dashboard/trainer/routines")
+      } else {
+        toast.error("Failed to create routine")
       }
+    } catch {
+      toast.error("Failed to create routine")
     } finally {
       setIsSubmitting(false)
     }

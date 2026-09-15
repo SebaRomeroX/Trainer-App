@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -79,19 +80,29 @@ export function WelcomeWizard({
       if (res.ok) {
         onComplete()
         onOpenChange(false)
+      } else {
+        toast.error("Failed to complete onboarding")
       }
+    } catch {
+      toast.error("Failed to complete onboarding")
     } finally {
       setIsCompleting(false)
     }
   }
 
   const handleSkip = async () => {
-    const res = await fetch("/api/clients/me/onboarding", {
-      method: "PUT",
-    })
-    if (res.ok) {
-      onComplete()
-      onOpenChange(false)
+    try {
+      const res = await fetch("/api/clients/me/onboarding", {
+        method: "PUT",
+      })
+      if (res.ok) {
+        onComplete()
+        onOpenChange(false)
+      } else {
+        toast.error("Failed to skip onboarding")
+      }
+    } catch {
+      toast.error("Failed to skip onboarding")
     }
   }
 

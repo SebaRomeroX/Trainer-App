@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Pause, Trash2 } from "lucide-react"
@@ -56,7 +57,7 @@ export function AssignedRoutinesList({
           setAssignments(data.routines)
         }
       } catch {
-        // silent
+        toast.error("Failed to load assignments")
       } finally {
         if (!cancelled) setIsLoading(false)
       }
@@ -75,8 +76,8 @@ export function AssignedRoutinesList({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       })
-    } catch (error) {
-      console.error("Failed to update status:", error)
+    } catch {
+      toast.error("Failed to update status")
     }
     onRefresh?.()
   }
@@ -86,8 +87,8 @@ export function AssignedRoutinesList({
       await fetch(`/api/client-routines/${assignmentId}`, {
         method: "DELETE",
       })
-    } catch (error) {
-      console.error("Failed to remove assignment:", error)
+    } catch {
+      toast.error("Failed to remove assignment")
     }
     onRefresh?.()
   }

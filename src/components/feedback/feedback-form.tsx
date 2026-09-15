@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -72,7 +73,7 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
           setRoutines(data.assignments || [])
         }
       } catch {
-        // ignore
+        toast.error("Failed to load routines")
       }
     }
     loadRoutines()

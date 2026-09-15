@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { toast } from "sonner"
 import { Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,7 +48,11 @@ export default function TrainerMessagesPage() {
         if (!cancelled && res.ok) {
           const data = await res.json()
           setConversations(data.conversations || [])
+        } else if (!cancelled) {
+          toast.error("Failed to load conversations")
         }
+      } catch {
+        if (!cancelled) toast.error("Failed to load conversations")
       } finally {
         if (!cancelled) setIsLoadingConversations(false)
       }
@@ -73,7 +78,11 @@ export default function TrainerMessagesPage() {
               fetch(`/api/messages/${msg._id}/read`, { method: "PUT" })
             }
           })
+        } else if (!cancelled) {
+          toast.error("Failed to load messages")
         }
+      } catch {
+        if (!cancelled) toast.error("Failed to load messages")
       } finally {
         if (!cancelled) setIsLoadingMessages(false)
       }
@@ -116,7 +125,11 @@ export default function TrainerMessagesPage() {
               : c
           )
         )
+      } else {
+        toast.error("Failed to send message")
       }
+    } catch {
+      toast.error("Failed to send message")
     } finally {
       setIsSending(false)
     }

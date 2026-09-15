@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { toast } from "sonner"
 import { useParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -214,7 +215,11 @@ export default function ClientProfilePage() {
         const data = await res.json()
         setClient((prev) => (prev ? { ...prev, goals: data.client.goals } : prev))
         setEditingGoals(false)
+      } else {
+        toast.error("Failed to save goals")
       }
+    } catch {
+      toast.error("Failed to save goals")
     } finally {
       setIsSaving(false)
     }
@@ -233,7 +238,11 @@ export default function ClientProfilePage() {
         const data = await res.json()
         setClient((prev) => (prev ? { ...prev, notes: data.client.notes } : prev))
         setEditingNotes(false)
+      } else {
+        toast.error("Failed to save notes")
       }
+    } catch {
+      toast.error("Failed to save notes")
     } finally {
       setIsSaving(false)
     }

@@ -427,14 +427,14 @@ Skipped items (pending future consideration):
   - [ ] Responsive design audit (mobile/tablet)
   - [ ] Loading states and skeletons (reusable Skeleton component)
   - [ ] Error handling and empty states (reusable EmptyState component)
-  - [ ] Toast notifications (install sonner)
+  - [x] Toast notifications (install sonner)
   - [ ] Confirmation dialogs (replace remaining window.confirm)
   - [ ] Form validation messages (wire aria-invalid to error state)
 
-- [ ] **Error Boundaries**
-  - [ ] Add `error.tsx` to dashboard routes
-  - [ ] Add `global-error.tsx` for unhandled errors
-  - [ ] Add `not-found.tsx` for 404 pages
+- [x] **Error Boundaries**
+  - [x] Add `error.tsx` to dashboard routes (8 files: root, dashboard, trainer, clients, clients/[id], routines, routines/[id])
+  - [x] Add `global-error.tsx` for unhandled errors
+  - [x] Add `not-found.tsx` for 404 pages (global + dashboard)
 
 - [ ] **Performance**
   - [x] Lazy load heavy components (next/dynamic)

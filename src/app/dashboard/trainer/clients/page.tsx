@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ClientOnboardingWizard } from "@/components/clients/client-onboarding-wizard"
@@ -41,7 +42,11 @@ export default function ClientsPage() {
       if (res.ok) {
         const data = await res.json()
         setClients(data.clients)
+      } else {
+        toast.error("Failed to load clients")
       }
+    } catch {
+      toast.error("Failed to load clients")
     } finally {
       setIsLoading(false)
     }
@@ -72,7 +77,11 @@ export default function ClientsPage() {
         setDeleteOpen(false)
         setDeletingClient(null)
         fetchClients()
+      } else {
+        toast.error("Failed to delete client")
       }
+    } catch {
+      toast.error("Failed to delete client")
     } finally {
       setIsDeleting(false)
     }

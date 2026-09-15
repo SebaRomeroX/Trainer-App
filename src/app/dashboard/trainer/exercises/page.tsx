@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -52,7 +53,11 @@ export default function ExercisesPage() {
       if (res.ok) {
         const data = await res.json()
         setExercises(data.exercises)
+      } else {
+        toast.error("Failed to load exercises")
       }
+    } catch {
+      toast.error("Failed to load exercises")
     } finally {
       setIsLoading(false)
     }
@@ -74,7 +79,11 @@ export default function ExercisesPage() {
       if (res.ok) {
         setFormOpen(false)
         fetchExercises()
+      } else {
+        toast.error("Failed to create exercise")
       }
+    } catch {
+      toast.error("Failed to create exercise")
     } finally {
       setIsSubmitting(false)
     }
@@ -93,7 +102,11 @@ export default function ExercisesPage() {
         setFormOpen(false)
         setEditingExercise(null)
         fetchExercises()
+      } else {
+        toast.error("Failed to update exercise")
       }
+    } catch {
+      toast.error("Failed to update exercise")
     } finally {
       setIsSubmitting(false)
     }
@@ -110,7 +123,11 @@ export default function ExercisesPage() {
         setDeleteOpen(false)
         setDeletingExercise(null)
         fetchExercises()
+      } else {
+        toast.error("Failed to delete exercise")
       }
+    } catch {
+      toast.error("Failed to delete exercise")
     } finally {
       setIsDeleting(false)
     }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { StatsOverview } from "@/components/dashboard/stats-overview"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { ClientProgressCards } from "@/components/dashboard/client-progress-cards"
@@ -48,7 +49,11 @@ export default function TrainerDashboardPage() {
         if (!cancelled && res.ok) {
           const json = await res.json()
           setData(json)
+        } else if (!cancelled) {
+          toast.error("Failed to load dashboard")
         }
+      } catch {
+        if (!cancelled) toast.error("Failed to load dashboard")
       } finally {
         if (!cancelled) setIsLoading(false)
       }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { StatsCards } from "@/components/workouts/stats-cards"
 import { WeeklyChart } from "@/components/workouts/weekly-chart"
 import { RatingsChart } from "@/components/charts/ratings-chart"
@@ -66,8 +67,8 @@ export default function ProgressPage() {
             )
           }
         }
-      } catch (error) {
-        console.error("Failed to load progress:", error)
+      } catch {
+        toast.error("Failed to load progress")
       } finally {
         if (!cancelled) setIsLoading(false)
       }

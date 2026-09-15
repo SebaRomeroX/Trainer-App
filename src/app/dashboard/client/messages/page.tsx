@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
+import { toast } from "sonner"
 import { Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -51,6 +52,8 @@ export default function ClientMessagesPage() {
             setTrainerId(other._id)
             setTrainerName(other.name)
           }
+        } else if (!cancelled) {
+          toast.error("Failed to load messages")
         }
 
         if (!cancelled && profileRes.ok) {
@@ -63,6 +66,8 @@ export default function ClientMessagesPage() {
             setTrainerName((prev) => prev === "Your Trainer" ? profileData.trainer.name : prev)
           }
         }
+      } catch {
+        if (!cancelled) toast.error("Failed to load messages")
       } finally {
         if (!cancelled) setIsLoading(false)
       }
@@ -90,7 +95,11 @@ export default function ClientMessagesPage() {
         const data = await res.json()
         setMessages((prev) => [...prev, data.message])
         setNewMessage("")
+      } else {
+        toast.error("Failed to send message")
       }
+    } catch {
+      toast.error("Failed to send message")
     } finally {
       setIsSending(false)
     }

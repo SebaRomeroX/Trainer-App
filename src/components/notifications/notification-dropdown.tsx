@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { toast } from "sonner"
 import { Bell, CheckCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { NotificationItem } from "./notification-item"
@@ -33,7 +34,7 @@ export function NotificationDropdown() {
           setUnreadCount(data.unreadCount)
         }
       } catch {
-        // ignore
+        toast.error("Failed to load notifications")
       }
     }
     load()
@@ -63,7 +64,7 @@ export function NotificationDropdown() {
         setUnreadCount((prev) => Math.max(0, prev - 1))
       }
     } catch {
-      console.error("Failed to mark notification as read")
+      toast.error("Failed to mark notification as read")
     }
   }
 
@@ -76,7 +77,7 @@ export function NotificationDropdown() {
         setUnreadCount(0)
       }
     } catch {
-      console.error("Failed to mark all as read")
+      toast.error("Failed to mark all as read")
     } finally {
       setLoading(false)
     }

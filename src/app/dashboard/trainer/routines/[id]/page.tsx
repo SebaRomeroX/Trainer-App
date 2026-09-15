@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { toast } from "sonner"
 import { useRouter, useParams } from "next/navigation"
 import { RoutineForm } from "@/components/routines/routine-form"
 import { RoutineChangeLog } from "@/components/routines/routine-change-log"
@@ -62,7 +63,7 @@ export default function EditRoutinePage() {
           })
         }
       })
-      .catch((error) => console.error("Failed to load routine:", error))
+      .catch(() => { toast.error("Failed to load routine") })
       .finally(() => { if (!cancelled) setIsLoading(false) })
     return () => { cancelled = true }
   }, [id])
@@ -78,10 +79,10 @@ export default function EditRoutinePage() {
       if (res.ok) {
         router.push("/dashboard/trainer/routines")
       } else {
-        console.error("Failed to update routine")
+        toast.error("Failed to update routine")
       }
-    } catch (error) {
-      console.error("Failed to update routine:", error)
+    } catch {
+      toast.error("Failed to update routine")
     } finally {
       setIsSubmitting(false)
     }

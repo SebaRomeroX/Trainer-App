@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { RoutineTable } from "@/components/routines/routine-table"
@@ -40,7 +41,11 @@ export default function RoutinesPage() {
       if (res.ok) {
         const data = await res.json()
         setRoutines(data.routines)
+      } else {
+        toast.error("Failed to load routines")
       }
+    } catch {
+      toast.error("Failed to load routines")
     } finally {
       setIsLoading(false)
     }
@@ -63,7 +68,11 @@ export default function RoutinesPage() {
         setDeleteOpen(false)
         setDeletingRoutine(null)
         fetchRoutines()
+      } else {
+        toast.error("Failed to delete routine")
       }
+    } catch {
+      toast.error("Failed to delete routine")
     } finally {
       setIsDeleting(false)
     }
