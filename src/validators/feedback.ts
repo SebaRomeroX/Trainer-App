@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { sanitizeStrict } from "@/lib/sanitize"
 
 export const CreateFeedbackSchema = z.object({
   routineId: z.string().optional(),
@@ -10,7 +11,8 @@ export const CreateFeedbackSchema = z.object({
     .max(500, { error: "Message must be 500 characters or less." })
     .trim()
     .min(1, { error: "Message cannot be only whitespace." })
-    .optional(),
+    .optional()
+    .transform((v) => (v ? sanitizeStrict(v) : v)),
 })
 
 export type CreateFeedbackInput = z.infer<typeof CreateFeedbackSchema>

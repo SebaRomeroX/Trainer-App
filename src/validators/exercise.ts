@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { sanitizeStrict, sanitizeArray } from "@/lib/sanitize"
 
 export const ExerciseCategoryEnum = z.enum([
   "strength",
@@ -15,11 +16,12 @@ export const CreateExerciseSchema = z.object({
     .string()
     .min(1, { error: "Name is required." })
     .max(100, { error: "Name must be 100 characters or less." })
-    .trim(),
-  description: z.string().max(500, { error: "Description must be 500 characters or less." }).trim().optional(),
+    .trim()
+    .transform(sanitizeStrict),
+  description: z.string().max(500, { error: "Description must be 500 characters or less." }).trim().optional().transform((v) => (v ? sanitizeStrict(v) : v)),
   category: ExerciseCategoryEnum,
-  muscleGroups: z.array(z.string().trim()).optional().default([]),
-  equipment: z.array(z.string().trim()).optional().default([]),
+  muscleGroups: z.array(z.string().trim()).optional().default([]).transform(sanitizeArray),
+  equipment: z.array(z.string().trim()).optional().default([]).transform(sanitizeArray),
   difficulty: ExerciseDifficultyEnum.default("medium"),
   videoUrl: z.string().url({ error: "Please enter a valid URL." }).optional(),
   imageUrl: z.string().url({ error: "Please enter a valid URL." }).optional(),

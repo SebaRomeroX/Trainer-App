@@ -14,7 +14,7 @@ import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit"
 export async function POST(request: Request) {
   try {
     const rateKey = getRateLimitKey(request, "register")
-    const { allowed, retryAfterMs } = checkRateLimit(rateKey, 3, 60_000)
+    const { allowed, retryAfterMs } = await checkRateLimit(rateKey, "register")
     if (!allowed) {
       return NextResponse.json(
         { error: "Too many attempts. Please try again later." },

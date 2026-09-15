@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { verifyAccessToken } from "@/lib/auth"
+import { validateCsrfToken } from "@/lib/csrf"
 
 const protectedRoutes = {
   trainer: ["/dashboard/trainer"],
@@ -10,8 +11,26 @@ const protectedRoutes = {
 
 const publicOnlyRoutes = ["/login", "/register", "/reset-password"]
 
+const stateChangingMethods = ["POST", "PUT", "DELETE", "PATCH"]
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  if (
+    stateChangingMethods.includes(request.method) &&
+    pathname.startsWith("/api/")
+  ) {
+    const isAuthRoute = pathname.startsWith("/api/auth/")
+    if (!isAuthRoute) {
+      const valid = await validateCsrfToken(request)
+      if (!valid) {
+        return NextResponse.json(
+          { error: "Invalid CSRF token" },
+          { status: 403 }
+        )
+      }
+    }
+  }
 
   const isProtectedRoute = Object.values(protectedRoutes)
     .flat()

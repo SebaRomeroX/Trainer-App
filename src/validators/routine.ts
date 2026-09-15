@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { sanitizeStrict } from "@/lib/sanitize"
 
 export const RoutineDifficultyEnum = z.enum([
   "beginner",
@@ -21,12 +22,14 @@ export const CreateRoutineSchema = z.object({
     .string()
     .min(1, { error: "Name is required." })
     .max(100, { error: "Name must be 100 characters or less." })
-    .trim(),
+    .trim()
+    .transform(sanitizeStrict),
   description: z
     .string()
     .max(500, { error: "Description must be 500 characters or less." })
     .trim()
-    .optional(),
+    .optional()
+    .transform((v) => (v ? sanitizeStrict(v) : v)),
   difficulty: RoutineDifficultyEnum.default("beginner"),
   duration: z.number().int().positive({ error: "Duration is required." }),
   exercises: z

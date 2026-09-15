@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { sanitizeStrict } from "@/lib/sanitize"
 
 export const SendMessageSchema = z.object({
   receiverId: z
@@ -9,7 +10,8 @@ export const SendMessageSchema = z.object({
     .string()
     .min(1, { error: "Message cannot be empty." })
     .max(1000, { error: "Message must be 1000 characters or less." })
-    .trim(),
+    .trim()
+    .transform(sanitizeStrict),
 })
 
 export type SendMessageInput = z.infer<typeof SendMessageSchema>

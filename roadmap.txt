@@ -2,7 +2,7 @@
 # BODY TRAINER APP - DEVELOPMENT ROADMAP
 # ============================================
 # A trainer-client fitness platform
-# Last updated: 2026-09-08
+# Last updated: 2026-09-15
 
 ---
 
@@ -355,35 +355,92 @@ Skipped items (pending future consideration):
 
 ---
 
-### v0.5 - Polish & Testing (Weeks 9-10)
-**Goal**: UI refinement, bug fixes, performance
+### v0.5a - Security Hardening & Test Foundation (Week 9)
+**Goal**: Security hardening, testing infrastructure setup
+
+#### Must Have
+- [x] **Security Headers (next.config.ts)**
+  - [x] `X-Frame-Options: DENY`
+  - [x] `X-Content-Type-Options: nosniff`
+  - [x] `Referrer-Policy: strict-origin-when-cross-origin`
+  - [x] `X-DNS-Prefetch-Control: on`
+  - [x] `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+  - [x] `X-XSS-Protection: 1; mode=block`
+  - [x] Content-Security-Policy (CSP) — tune for assets
+  - [x] `poweredByHeader: false`
+  - [x] `reactStrictMode: true`
+
+- [x] **CSRF Protection**
+  - [x] Implement double-submit cookie pattern or `csrf` package
+  - [x] Add CSRF token to state-changing API routes (POST/PUT/DELETE)
+  - [x] Validate tokens in middleware or API handlers
+  - [x] Skip for login/register (rate-limited)
+
+- [x] **Input Sanitization**
+  - [x] Install `sanitize-html` or `DOMPurify`
+  - [x] Create `src/lib/sanitize.ts` utility
+  - [x] Apply to user-generated text: notes, descriptions, feedback messages
+  - [x] Add Zod `.transform()` with sanitization for text fields
+
+- [x] **Rate Limiting Upgrade (Upstash Redis)**
+  - [x] Install `@upstash/ratelimit` + `@upstash/redis`
+  - [x] Replace in-memory Map with Redis-backed rate limiting
+  - [x] Configure: Login 5/min, Register 3/min, Password Reset 3/min, API 60/min
+
+- [x] **Additional Hardening**
+  - [x] Add input length limits to Zod schemas
+  - [x] Validate Content-Type header on all API routes
+  - [x] Add helmet-style middleware for response headers
+
+- [x] **Vitest Setup**
+  - [x] Install vitest + @testing-library/react + @testing-library/jest-dom
+  - [x] Configure `vitest.config.ts`
+  - [x] Add `test` and `test:watch` scripts to package.json
+  - [x] Write unit tests for: `src/lib/utils.ts`, `src/lib/sanitize.ts`, validators
+
+- [x] **Playwright Setup**
+  - [x] Install @playwright/test
+  - [x] Configure `playwright.config.ts`
+  - [x] E2E: Login → Dashboard redirect
+  - [x] E2E: Create exercise → Appears in library
+  - [x] E2E: Create routine → Assign to client
+  - [x] E2E: Client starts workout → Logs sets → Saves
+
+#### Nice to Have
+- [ ] Mock service worker (MSW) for API mocking in tests
+- [ ] GitHub Actions CI workflow for tests
+- [ ] Code coverage reporting
+
+#### Status: COMPLETE
+Skipped items (pending future consideration):
+- MSW for API mocking
+- GitHub Actions CI workflow
+- Code coverage reporting
+
+---
+
+### v0.5b - UI/UX Polish & Performance (Week 10)
+**Goal**: UI refinement, loading states, error handling, performance
 
 #### Must Have
 - [ ] **UI/UX Polish**
   - [ ] Responsive design audit (mobile/tablet)
-  - [ ] Loading states and skeletons
-  - [ ] Error handling and empty states
-  - [ ] Toast notifications
-  - [ ] Confirmation dialogs
-  - [ ] Form validation messages
+  - [ ] Loading states and skeletons (reusable Skeleton component)
+  - [ ] Error handling and empty states (reusable EmptyState component)
+  - [ ] Toast notifications (install sonner)
+  - [ ] Confirmation dialogs (replace remaining window.confirm)
+  - [ ] Form validation messages (wire aria-invalid to error state)
 
-- [ ] **Testing**
-  - [ ] Unit tests for utilities
-  - [ ] Integration tests for API routes
-  - [ ] E2E tests for critical flows
-  - [ ] Manual testing checklist
+- [ ] **Error Boundaries**
+  - [ ] Add `error.tsx` to dashboard routes
+  - [ ] Add `global-error.tsx` for unhandled errors
+  - [ ] Add `not-found.tsx` for 404 pages
 
 - [ ] **Performance**
-  - [ ] Image optimization
-  - [ ] Lazy loading
-  - [ ] Database query optimization
-  - [ ] Lighthouse audit (90+ score)
-
-- [ ] **Security**
-  - [ ] Input sanitization
-  - [ ] Rate limiting
-  - [ ] CSRF protection
-  - [ ] Security headers
+  - [ ] Image optimization (next/image, blur placeholders)
+  - [ ] Lazy loading for below-fold content
+  - [ ] Database query optimization (indexes, select fields)
+  - [ ] Lighthouse audit (90+ score target)
 
 #### Nice to Have
 - [ ] Accessibility audit (WCAG 2.1)
@@ -626,5 +683,5 @@ pnpm seed             # Seed database
 
 ---
 
-**Status**: In Progress - v0.4 Complete (All items done)
-**Next Step**: v0.5 Polish & Testing
+**Status**: In Progress - v0.5a Complete (Security + Testing)
+**Next Step**: v0.5b UI/UX Polish & Performance
