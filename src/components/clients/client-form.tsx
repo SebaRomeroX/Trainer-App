@@ -108,8 +108,8 @@ export function ClientForm({ onSubmit, onCancel, isLoading }: ClientFormProps) {
         <Input
           id="goals"
           placeholder="e.g. Weight loss, Muscle gain"
-          defaultValue=""
-          onBlur={(e) => handleGoalsInput(e.target.value)}
+          defaultValue={watch("goals")?.join(", ") ?? ""}
+          onChange={(e) => handleGoalsInput(e.target.value)}
         />
         <p className="text-xs text-zinc-500">Comma-separated</p>
       </div>

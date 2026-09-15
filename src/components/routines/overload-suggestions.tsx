@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Check, X, Pencil, RefreshCw, TrendingUp } from "lucide-react"
 
 interface ExerciseInfo {
@@ -50,7 +49,29 @@ export function OverloadSuggestions({
   const [isChecking, setIsChecking] = useState(false)
 
   useEffect(() => {
-    loadSuggestions()
+    const controller = new AbortController()
+
+    async function fetchSuggestions() {
+      setIsLoading(true)
+      try {
+        const res = await fetch(
+          `/api/progressive-overload/${planId}/suggestions?status=${filter}`,
+          { signal: controller.signal }
+        )
+        if (res.ok) {
+          const data = await res.json()
+          setSuggestions(data.suggestions)
+        }
+      } catch {
+        // silent
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchSuggestions()
+
+    return () => controller.abort()
   }, [planId, filter])
 
   async function loadSuggestions() {

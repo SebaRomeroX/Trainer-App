@@ -151,7 +151,7 @@ export function ExerciseForm({
           id="muscleGroups"
           placeholder="e.g. Chest, Triceps, Shoulders"
           defaultValue={exercise?.muscleGroups?.join(", ") ?? ""}
-          onBlur={(e) => handleArrayInput("muscleGroups", e.target.value)}
+          onChange={(e) => handleArrayInput("muscleGroups", e.target.value)}
         />
         <p className="text-xs text-zinc-500">Comma-separated</p>
       </div>
@@ -162,7 +162,7 @@ export function ExerciseForm({
           id="equipment"
           placeholder="e.g. Barbell, Bench"
           defaultValue={exercise?.equipment?.join(", ") ?? ""}
-          onBlur={(e) => handleArrayInput("equipment", e.target.value)}
+          onChange={(e) => handleArrayInput("equipment", e.target.value)}
         />
         <p className="text-xs text-zinc-500">Comma-separated</p>
       </div>

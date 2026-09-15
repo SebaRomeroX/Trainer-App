@@ -144,12 +144,14 @@ export function ClientOnboardingWizard({
 
   useEffect(() => {
     if (step === 2) {
-      fetch("/api/routines")
+      const controller = new AbortController()
+      fetch("/api/routines", { signal: controller.signal })
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.routines) setRoutines(data.routines)
         })
         .catch(() => {})
+      return () => controller.abort()
     }
   }, [step])
 
@@ -273,8 +275,8 @@ export function ClientOnboardingWizard({
               <Input
                 id="onb-goals"
                 placeholder="e.g. Weight loss, Muscle gain"
-                defaultValue=""
-                onBlur={(e) => handleGoalsInput(e.target.value)}
+                defaultValue={watch("goals")?.join(", ") ?? ""}
+                onChange={(e) => handleGoalsInput(e.target.value)}
               />
               <p className="text-xs text-zinc-500">Comma-separated</p>
             </div>

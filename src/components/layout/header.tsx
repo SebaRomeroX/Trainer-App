@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export function Header() {
+  const { user } = useAuth();
+
   return (
     <header className="border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16 px-6">
@@ -14,13 +17,13 @@ export function Header() {
 
         <div className="hidden md:flex items-center gap-4">
           <Link
-            className="text-zinc-600 dark:text-zinc-400 hover underline"
-            href="/dashboard/trainer"
+            className="text-zinc-600 dark:text-zinc-400 hover:underline"
+            href={user?.role === "client" ? "/dashboard/client" : "/dashboard/trainer"}
           >
             Dashboard
           </Link>
           <Link
-            className="text-zinc-600 dark:text-zinc-400 hover underline"
+            className="text-zinc-600 dark:text-zinc-400 hover:underline"
             href="/dashboard/profile"
           >
             Profile
