@@ -68,6 +68,10 @@ export async function PUT(
       updateData.endDate = new Date()
     }
 
+    if (validated.data.status === "active") {
+      updateData.endDate = null
+    }
+
     const updated = await ClientRoutine.findByIdAndUpdate(
       id,
       { $set: updateData },

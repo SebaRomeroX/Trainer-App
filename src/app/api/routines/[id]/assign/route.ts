@@ -61,9 +61,12 @@ export async function POST(
       ? new Date(validated.data.startDate)
       : new Date()
 
-    const isStartToday =
-      startDate.toISOString().split("T")[0] ===
-      new Date().toISOString().split("T")[0]
+    const todayUtc = new Date()
+    todayUtc.setUTCHours(0, 0, 0, 0)
+    const startUtc = new Date(startDate)
+    startUtc.setUTCHours(0, 0, 0, 0)
+
+    const isStartToday = startUtc.getTime() === todayUtc.getTime()
 
     if (activeAssignment && !validated.data.startDate) {
       return NextResponse.json(

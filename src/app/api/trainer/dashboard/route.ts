@@ -5,6 +5,14 @@ import { ClientProfile } from "@/models/ClientProfile"
 import { WorkoutLog } from "@/models/WorkoutLog"
 import { ClientRoutine } from "@/models/ClientRoutine"
 
+const DAY_MS = 86400000
+
+function utcStartOfDay(date: Date): Date {
+  const d = new Date(date)
+  d.setUTCHours(0, 0, 0, 0)
+  return d
+}
+
 export async function GET() {
   try {
     const session = await requireRole(["trainer"])
@@ -12,9 +20,9 @@ export async function GET() {
     await connectDB()
 
     const now = new Date()
-    const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - now.getDay())
-    startOfWeek.setHours(0, 0, 0, 0)
+    const today = utcStartOfDay(now)
+    const startOfWeekMs = today.getTime() - today.getUTCDay() * DAY_MS
+    const ninetyDaysAgo = new Date(now.getTime() - 90 * DAY_MS)
 
     const clientProfiles = await ClientProfile.find({ trainerId: session.userId })
       .populate("userId", "name email avatar createdAt")
@@ -22,21 +30,26 @@ export async function GET() {
 
     const clientUserIds = clientProfiles.map((p) => p.userId._id || p.userId)
 
-    const [allWorkoutLogs, allClientRoutines] = await Promise.all([
-      WorkoutLog.find({ clientId: { $in: clientUserIds } })
+    const [recentLogs, recentRoutines] = await Promise.all([
+      WorkoutLog.find({
+        clientId: { $in: clientUserIds },
+        date: { $gte: ninetyDaysAgo },
+      })
         .sort({ date: -1 })
+        .limit(500)
         .populate("routineId", "name")
         .lean(),
       ClientRoutine.find({ clientId: { $in: clientUserIds } })
+        .limit(500)
         .populate("routineId", "name")
         .lean(),
     ])
 
-    const workoutsThisWeek = allWorkoutLogs.filter(
-      (w) => new Date(w.date) >= startOfWeek
+    const workoutsThisWeek = recentLogs.filter(
+      (w) => new Date(w.date).getTime() >= startOfWeekMs
     ).length
 
-    const ratedWorkouts = allWorkoutLogs.filter(
+    const ratedWorkouts = recentLogs.filter(
       (w) => w.rating != null && w.rating > 0
     )
     const avgRating =
@@ -50,10 +63,10 @@ export async function GET() {
 
     const clientStats = clientProfiles.map((profile) => {
       const userId = (profile.userId as unknown as { _id: { toString(): string }; name: string; email: string; avatar?: string })._id.toString()
-      const clientLogs = allWorkoutLogs.filter(
+      const clientLogs = recentLogs.filter(
         (w) => w.clientId.toString() === userId
       )
-      const clientRoutines = allClientRoutines.filter(
+      const clientRoutines = recentRoutines.filter(
         (cr) => cr.clientId.toString() === userId
       )
 
@@ -73,33 +86,25 @@ export async function GET() {
           : null
 
       const workoutsThisWeekByClient = clientLogs.filter(
-        (w) => new Date(w.date) >= startOfWeek
+        (w) => new Date(w.date).getTime() >= startOfWeekMs
       ).length
 
       let streak = 0
       if (clientLogs.length > 0) {
-        const dayMs = 86400000
-        const today = new Date(now)
-        today.setHours(0, 0, 0, 0)
-
         const dates = [
           ...new Set(
-            clientLogs.map((l) => {
-              const d = new Date(l.date)
-              d.setHours(0, 0, 0, 0)
-              return d.getTime()
-            })
+            clientLogs.map((l) => utcStartOfDay(new Date(l.date)).getTime())
           ),
         ].sort((a, b) => b - a)
 
         const hasTodayOrYesterday =
           dates[0] === today.getTime() ||
-          dates[0] === today.getTime() - dayMs
+          dates[0] === today.getTime() - DAY_MS
 
         if (hasTodayOrYesterday) {
           streak = 1
           for (let i = 0; i < dates.length - 1; i++) {
-            if (dates[i] - dates[i + 1] === dayMs) {
+            if (dates[i] - dates[i + 1] === DAY_MS) {
               streak++
             } else {
               break
@@ -124,7 +129,7 @@ export async function GET() {
       }
     })
 
-    const recentActivity = allWorkoutLogs.slice(0, 10).map((log) => {
+    const recentActivity = recentLogs.slice(0, 10).map((log) => {
       const clientProfile = clientProfiles.find(
         (p) => (p.userId as unknown as { _id: { toString(): string } })._id.toString() === log.clientId.toString()
       )
@@ -153,7 +158,7 @@ export async function GET() {
     return NextResponse.json({
       stats: {
         totalClients: clientProfiles.length,
-        activeRoutines: allClientRoutines.filter((cr) => cr.status === "active")
+        activeRoutines: recentRoutines.filter((cr) => cr.status === "active")
           .length,
         workoutsThisWeek,
         avgRating,
