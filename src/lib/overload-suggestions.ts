@@ -79,7 +79,7 @@ function computeSuggestion(
       current.repsCompleted.length
     if (avgReps < target.targetReps) {
       suggestions.suggestedReps = Math.min(
-        avgReps + 1,
+        Math.round(avgReps + 1),
         target.targetReps
       )
       hasSuggestion = true

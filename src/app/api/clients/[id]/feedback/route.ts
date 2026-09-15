@@ -35,6 +35,7 @@ export async function GET(
       type: "client_to_trainer",
     })
       .sort({ createdAt: -1 })
+      .limit(50)
       .populate("routineId", "name")
       .lean()
 

@@ -12,6 +12,7 @@ export async function GET() {
     const assignments = await ClientRoutine.find({ clientId: session.userId })
       .populate("routineId", "name description difficulty duration exercises")
       .sort({ assignedDate: -1 })
+      .limit(50)
       .lean()
 
     const routines = assignments.map((a) => ({

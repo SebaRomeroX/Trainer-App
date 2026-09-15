@@ -40,10 +40,12 @@ export async function GET(
       WorkoutLog.find({ clientId })
         .select("date rating")
         .sort({ date: 1 })
+        .limit(50)
         .lean(),
       Feedback.find({ clientId, type: "client_to_trainer" })
         .select("createdAt difficultyRating enjoymentRating")
         .sort({ createdAt: 1 })
+        .limit(50)
         .lean(),
     ])
 
