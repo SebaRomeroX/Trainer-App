@@ -125,7 +125,22 @@ export async function POST(request: Request) {
         targetDate: new Date(e.targetDate),
         notes: e.notes,
       })),
+    }).catch((err) => {
+      if (err?.code === 11000) {
+        return null
+      }
+      throw err
     })
+
+    if (!plan) {
+      return NextResponse.json(
+        {
+          error:
+            "A plan already exists for this assignment. Update or archive it first.",
+        },
+        { status: 409 }
+      )
+    }
 
     return NextResponse.json({ plan }, { status: 201 })
   } catch (error) {

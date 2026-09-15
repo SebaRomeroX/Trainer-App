@@ -51,6 +51,10 @@ const OverloadSuggestionSchema = new Schema<IOverloadSuggestion>(
 
 OverloadSuggestionSchema.index({ planId: 1, status: 1 })
 OverloadSuggestionSchema.index({ clientId: 1, status: 1 })
+OverloadSuggestionSchema.index(
+  { planId: 1, exerciseId: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" } }
+)
 
 export const OverloadSuggestion: Model<IOverloadSuggestion> =
   mongoose.models.OverloadSuggestion ||

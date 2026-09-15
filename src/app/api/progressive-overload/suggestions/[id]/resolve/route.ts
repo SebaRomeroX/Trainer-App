@@ -76,12 +76,12 @@ export async function PUT(
       const routine = await Routine.findById(assignment.routineId).lean()
 
       if (routine) {
-        const exerciseIndex = routine.exercises.findIndex(
+        const existingExercise = routine.exercises.find(
           (e) =>
             e.exerciseId.toString() === suggestion.exerciseId.toString()
         )
 
-        if (exerciseIndex !== -1) {
+        if (existingExercise) {
           const exerciseUpdate: Record<string, unknown> = {}
           const weight =
             validated.data.customWeight ?? suggestion.suggestedWeight
@@ -92,15 +92,18 @@ export async function PUT(
           if (reps !== undefined) exerciseUpdate.reps = reps
           if (sets !== undefined) exerciseUpdate.sets = sets
 
-          const updatePath = `exercises.${exerciseIndex}`
           await Routine.findByIdAndUpdate(assignment.routineId, {
-            $set: { [updatePath]: { ...routine.exercises[exerciseIndex], ...exerciseUpdate } },
+            $set: {
+              "exercises.$[elem]": { ...existingExercise, ...exerciseUpdate },
+            },
+          }, {
+            arrayFilters: [{ "elem.exerciseId": suggestion.exerciseId }],
           })
 
           const changes = Object.entries(exerciseUpdate).map(
             ([field, after]) => ({
-              field: `${routine.exercises[exerciseIndex].exerciseId}.${field}`,
-              before: routine.exercises[exerciseIndex][
+              field: `${existingExercise.exerciseId}.${field}`,
+              before: existingExercise[
                 field as keyof (typeof routine.exercises)[0]
               ],
               after,

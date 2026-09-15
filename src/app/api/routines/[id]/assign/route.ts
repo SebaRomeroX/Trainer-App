@@ -52,22 +52,6 @@ export async function POST(
       )
     }
 
-    const existingAssignment = await ClientRoutine.findOne({
-      clientId: validated.data.clientId,
-      routineId: id,
-      status: { $in: ["active", "scheduled"] },
-    }).lean()
-
-    if (existingAssignment) {
-      return NextResponse.json(
-        {
-          error:
-            "This routine is already assigned to this client.",
-        },
-        { status: 400 }
-      )
-    }
-
     const activeAssignment = await ClientRoutine.findOne({
       clientId: validated.data.clientId,
       status: "active",
@@ -100,12 +84,29 @@ export async function POST(
 
     const status = activeAssignment && !isStartToday ? "scheduled" : "active"
 
-    const clientRoutine = await ClientRoutine.create({
-      clientId: validated.data.clientId,
-      routineId: id,
-      startDate,
-      status,
-    })
+    const clientRoutine = await ClientRoutine.findOneAndUpdate(
+      {
+        clientId: validated.data.clientId,
+        routineId: id,
+        status: { $in: ["active", "scheduled"] },
+      },
+      {
+        $setOnInsert: {
+          clientId: validated.data.clientId,
+          routineId: id,
+          startDate,
+          status,
+        },
+      },
+      { upsert: true, new: true, runValidators: true }
+    )
+
+    if (!clientRoutine) {
+      return NextResponse.json(
+        { error: "Failed to create assignment." },
+        { status: 500 }
+      )
+    }
 
     const clientUser = await User.findById(clientProfile.userId).select("name").lean()
     const clientName = clientUser?.name || "Your client"

@@ -186,7 +186,12 @@ export async function generateSuggestions(clientRoutineId: string) {
   }
 
   if (suggestionsToCreate.length > 0) {
-    await OverloadSuggestion.insertMany(suggestionsToCreate)
+    await OverloadSuggestion.insertMany(suggestionsToCreate, {
+      ordered: false,
+    }).catch((err) => {
+      if (err?.code === 11000) return
+      throw err
+    })
 
     const client = await User.findById(assignment.clientId)
       .select("name")

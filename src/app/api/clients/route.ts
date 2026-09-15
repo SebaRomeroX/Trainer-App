@@ -76,14 +76,20 @@ export async function POST(request: Request) {
       role: "client",
     })
 
-    const clientProfile = await ClientProfile.create({
-      userId: user._id,
-      trainerId: session.userId,
-      fitnessLevel: validated.data.fitnessLevel,
-      goals: validated.data.goals,
-      notes: validated.data.notes,
-      startDate: new Date(),
-    })
+    let clientProfile
+    try {
+      clientProfile = await ClientProfile.create({
+        userId: user._id,
+        trainerId: session.userId,
+        fitnessLevel: validated.data.fitnessLevel,
+        goals: validated.data.goals,
+        notes: validated.data.notes,
+        startDate: new Date(),
+      })
+    } catch (profileError) {
+      await User.findByIdAndDelete(user._id)
+      throw profileError
+    }
 
     return NextResponse.json(
       {
