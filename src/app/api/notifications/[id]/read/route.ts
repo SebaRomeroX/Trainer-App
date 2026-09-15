@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectDB } from "@/lib/db"
+import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Notification } from "@/models/Notification"
 
@@ -10,6 +10,8 @@ export async function PUT(
   try {
     const session = await requireRole(["trainer", "client"])
     const { id } = await params
+    const invalid = validateObjectId(id)
+    if (invalid) return invalid
 
     await connectDB()
 

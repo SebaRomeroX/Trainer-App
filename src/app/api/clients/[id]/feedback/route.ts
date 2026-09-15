@@ -18,7 +18,7 @@ export async function GET(
     await connectDB()
 
     const clientProfile = await ClientProfile.findOne({
-      userId: id,
+      _id: id,
       trainerId: session.userId,
     }).lean()
 
@@ -30,7 +30,7 @@ export async function GET(
     }
 
     const feedbacks = await Feedback.find({
-      clientId: id,
+      clientId: clientProfile.userId,
       trainerId: session.userId,
       type: "client_to_trainer",
     })

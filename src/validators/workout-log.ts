@@ -2,10 +2,10 @@ import * as z from "zod"
 
 const WorkoutLogExerciseSchema = z.object({
   exerciseId: z.string().min(1, { error: "Exercise ID is required." }),
-  setsCompleted: z.number().min(0, { error: "Sets completed is required." }),
+  setsCompleted: z.number().int().min(0, { error: "Sets completed is required." }),
   repsCompleted: z.array(z.number()).optional().default([]),
-  weight: z.number().optional(),
-  duration: z.number().optional(),
+  weight: z.number().min(0).optional(),
+  duration: z.number().min(0).optional(),
   completed: z.boolean().default(false),
 })
 

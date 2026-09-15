@@ -22,7 +22,7 @@ export async function GET(
 
     if (session.role === "trainer") {
       const clientProfile = await ClientProfile.findOne({
-        userId: id,
+        _id: id,
         trainerId: session.userId,
       }).lean()
 
