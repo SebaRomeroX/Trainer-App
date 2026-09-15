@@ -6,6 +6,7 @@ import {
   signRefreshToken,
   setRefreshTokenCookie,
   setAccessTokenCookie,
+  isRefreshTokenRevoked,
 } from "@/lib/auth"
 import { connectDB } from "@/lib/db"
 import { User } from "@/models/User"
@@ -25,6 +26,13 @@ export async function POST() {
     if (!payload) {
       return NextResponse.json(
         { error: "Invalid or expired refresh token." },
+        { status: 401 }
+      )
+    }
+
+    if (await isRefreshTokenRevoked(refreshToken)) {
+      return NextResponse.json(
+        { error: "Refresh token has been revoked." },
         { status: 401 }
       )
     }
@@ -55,7 +63,8 @@ export async function POST() {
         role: user.role,
       },
     })
-  } catch {
+  } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }

@@ -9,9 +9,19 @@ import {
   setAccessTokenCookie,
 } from "@/lib/auth"
 import { LoginSchema } from "@/validators/auth"
+import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
+    const rateKey = getRateLimitKey(request, "login")
+    const { allowed, retryAfterMs } = checkRateLimit(rateKey, 5, 60_000)
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
+      )
+    }
+
     const body = await request.json()
     const validated = LoginSchema.safeParse(body)
 
@@ -58,7 +68,8 @@ export async function POST(request: Request) {
         role: user.role,
       },
     })
-  } catch {
+  } catch (error) {
+    console.error(error)
     return NextResponse.json(
       { error: "Something went wrong." },
       { status: 500 }

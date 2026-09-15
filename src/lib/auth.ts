@@ -2,6 +2,7 @@ import "server-only"
 import { SignJWT, jwtVerify, type JWTPayload } from "jose"
 import { cookies } from "next/headers"
 import bcrypt from "bcryptjs"
+import { revokeToken, isTokenRevoked } from "@/lib/token-blocklist"
 
 export interface TokenPayload extends JWTPayload {
   userId: string
@@ -48,7 +49,8 @@ export async function signAccessToken(
 export async function signRefreshToken(
   payload: Omit<TokenPayload, "iat" | "exp" | "iss">
 ) {
-  return new SignJWT(payload)
+  const jti = crypto.randomUUID()
+  return new SignJWT({ ...payload, jti })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setIssuer("trainer-app")
@@ -132,4 +134,17 @@ export async function deleteAccessTokenCookie() {
 export async function getRefreshTokenFromCookie(): Promise<string | undefined> {
   const cookieStore = await cookies()
   return cookieStore.get("refresh_token")?.value
+}
+
+export async function revokeRefreshToken(token: string) {
+  const payload = await verifyRefreshToken(token)
+  if (payload?.jti) {
+    revokeToken(payload.jti as string)
+  }
+}
+
+export async function isRefreshTokenRevoked(token: string): Promise<boolean> {
+  const payload = await verifyRefreshToken(token)
+  if (!payload?.jti) return false
+  return isTokenRevoked(payload.jti as string)
 }
