@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { WorkoutLog } from "@/models/WorkoutLog"
+import { RoutineChangeLog } from "@/models/RoutineChangeLog"
 import { UpdateWorkoutLogSchema } from "@/validators/workout-log"
 
 export async function GET(
@@ -120,6 +121,11 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    await RoutineChangeLog.deleteMany({
+      clientId: session.userId,
+      routineId: log.routineId,
+    })
 
     return NextResponse.json({ message: "Workout log deleted." })
   } catch (error) {

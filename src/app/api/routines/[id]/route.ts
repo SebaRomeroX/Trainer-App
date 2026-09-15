@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Routine } from "@/models/Routine"
+import { ClientRoutine } from "@/models/ClientRoutine"
+import { WorkoutLog } from "@/models/WorkoutLog"
+import { RoutineChangeLog } from "@/models/RoutineChangeLog"
 import { UpdateRoutineSchema } from "@/validators/routine"
 import { logRoutineChange } from "@/lib/routine-changes"
 
@@ -147,6 +150,14 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    const routineId = routine._id
+
+    await Promise.all([
+      ClientRoutine.deleteMany({ routineId }),
+      WorkoutLog.deleteMany({ routineId }),
+      RoutineChangeLog.deleteMany({ routineId }),
+    ])
 
     return NextResponse.json({ message: "Routine deleted." })
   } catch (error) {

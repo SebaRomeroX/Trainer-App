@@ -6,6 +6,9 @@ import { ClientProfile } from "@/models/ClientProfile"
 import { ClientRoutine } from "@/models/ClientRoutine"
 import { WorkoutLog } from "@/models/WorkoutLog"
 import { Feedback } from "@/models/Feedback"
+import { RoutineChangeLog } from "@/models/RoutineChangeLog"
+import { ProgressiveOverloadPlan } from "@/models/ProgressiveOverloadPlan"
+import { OverloadSuggestion } from "@/models/OverloadSuggestion"
 import { UpdateClientSchema } from "@/validators/client"
 
 export async function GET(
@@ -158,10 +161,17 @@ export async function DELETE(
 
     const userId = profile.userId
 
+    const clientRoutineIds = (
+      await ClientRoutine.find({ clientId: userId }).select("_id").lean()
+    ).map((cr) => cr._id)
+
     await Promise.all([
       ClientRoutine.deleteMany({ clientId: userId }),
       WorkoutLog.deleteMany({ clientId: userId }),
       Feedback.deleteMany({ clientId: userId }),
+      RoutineChangeLog.deleteMany({ clientId: userId }),
+      ProgressiveOverloadPlan.deleteMany({ clientRoutineId: { $in: clientRoutineIds } }),
+      OverloadSuggestion.deleteMany({ clientId: userId }),
       User.findByIdAndDelete(userId),
     ])
 
