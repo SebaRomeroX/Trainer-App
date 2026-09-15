@@ -20,8 +20,6 @@ const TrainerProfileSchema = new Schema<ITrainerProfile>(
   { timestamps: true }
 );
 
-TrainerProfileSchema.index({ userId: 1 });
-
 export const TrainerProfile: Model<ITrainerProfile> =
   mongoose.models.TrainerProfile ||
   mongoose.model<ITrainerProfile>("TrainerProfile", TrainerProfileSchema);

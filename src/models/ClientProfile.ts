@@ -30,7 +30,6 @@ const ClientProfileSchema = new Schema<IClientProfile>(
   { timestamps: true }
 );
 
-ClientProfileSchema.index({ userId: 1 });
 ClientProfileSchema.index({ trainerId: 1 });
 
 export const ClientProfile: Model<IClientProfile> =

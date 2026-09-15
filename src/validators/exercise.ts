@@ -21,6 +21,8 @@ export const CreateExerciseSchema = z.object({
   muscleGroups: z.array(z.string().trim()).optional().default([]),
   equipment: z.array(z.string().trim()).optional().default([]),
   difficulty: ExerciseDifficultyEnum.default("medium"),
+  videoUrl: z.string().url({ error: "Please enter a valid URL." }).optional(),
+  imageUrl: z.string().url({ error: "Please enter a valid URL." }).optional(),
 })
 
 export const UpdateExerciseSchema = CreateExerciseSchema.partial()

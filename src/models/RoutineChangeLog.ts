@@ -10,6 +10,7 @@ export interface IRoutineChangeLog extends Document {
     | "assigned"
     | "unassigned"
     | "status_changed"
+    | "overload_adjustment"
   description: string
   changes?: {
     field: string

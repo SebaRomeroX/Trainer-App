@@ -8,3 +8,6 @@ export { Feedback } from "./Feedback";
 export { ClientRoutine } from "./ClientRoutine";
 export { Message } from "./Message";
 export { RoutineChangeLog } from "./RoutineChangeLog";
+export { Notification } from "./Notification";
+export { OverloadSuggestion } from "./OverloadSuggestion";
+export { ProgressiveOverloadPlan } from "./ProgressiveOverloadPlan";
