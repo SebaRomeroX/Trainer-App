@@ -48,7 +48,6 @@ export async function POST() {
     await setAccessTokenCookie(newAccessToken)
 
     return NextResponse.json({
-      accessToken: newAccessToken,
       user: {
         id: user._id,
         name: user.name,

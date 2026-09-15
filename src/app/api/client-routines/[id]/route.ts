@@ -32,7 +32,11 @@ export async function PUT(
 
     await connectDB()
 
-    const assignment = await ClientRoutine.findById(id).lean()
+    const assignmentQuery = session.role === "client"
+      ? { _id: id, clientId: session.userId }
+      : { _id: id }
+
+    const assignment = await ClientRoutine.findOne(assignmentQuery).lean()
 
     if (!assignment) {
       return NextResponse.json(
@@ -53,11 +57,6 @@ export async function PUT(
           { status: 403 }
         )
       }
-    } else if (assignment.clientId.toString() !== session.userId) {
-      return NextResponse.json(
-        { error: "Forbidden" },
-        { status: 403 }
-      )
     }
 
     const updateData: Record<string, unknown> = { ...validated.data }

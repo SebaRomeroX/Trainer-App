@@ -30,6 +30,29 @@ export async function GET(request: Request) {
     }
 
     if (otherUserId) {
+      if (session.role === "trainer") {
+        const clientProfile = await ClientProfile.findOne({
+          userId: otherUserId,
+          trainerId: session.userId,
+        }).lean()
+        if (!clientProfile) {
+          return NextResponse.json(
+            { error: "You can only message your assigned clients." },
+            { status: 403 }
+          )
+        }
+      } else if (session.role === "client") {
+        const profile = await ClientProfile.findOne({ userId: session.userId })
+          .select("trainerId")
+          .lean()
+        if (!profile?.trainerId || profile.trainerId.toString() !== otherUserId) {
+          return NextResponse.json(
+            { error: "You can only message your trainer." },
+            { status: 403 }
+          )
+        }
+      }
+
       const messages = await Message.find({
         $or: [
           { senderId: session.userId, receiverId: otherUserId },
