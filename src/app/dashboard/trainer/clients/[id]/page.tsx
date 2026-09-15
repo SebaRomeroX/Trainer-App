@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,12 +17,32 @@ import {
 import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
-import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
-import { RoutineChangeLog } from "@/components/routines/routine-change-log"
-import { ClientFeedback } from "@/components/feedback/client-feedback"
-import { RatingsChart } from "@/components/charts/ratings-chart"
-import { ProgressiveOverloadDialog } from "@/components/routines/progressive-overload-dialog"
-import { OverloadSuggestions } from "@/components/routines/overload-suggestions"
+import dynamic from "next/dynamic"
+
+const AssignRoutineDialog = dynamic(
+  () => import("@/components/routines/assign-routine-dialog").then((m) => m.AssignRoutineDialog),
+  { ssr: false }
+)
+const RoutineChangeLog = dynamic(
+  () => import("@/components/routines/routine-change-log").then((m) => m.RoutineChangeLog),
+  { ssr: false }
+)
+const ClientFeedback = dynamic(
+  () => import("@/components/feedback/client-feedback").then((m) => m.ClientFeedback),
+  { ssr: false }
+)
+const RatingsChart = dynamic(
+  () => import("@/components/charts/ratings-chart").then((m) => m.RatingsChart),
+  { ssr: false }
+)
+const ProgressiveOverloadDialog = dynamic(
+  () => import("@/components/routines/progressive-overload-dialog").then((m) => m.ProgressiveOverloadDialog),
+  { ssr: false }
+)
+const OverloadSuggestions = dynamic(
+  () => import("@/components/routines/overload-suggestions").then((m) => m.OverloadSuggestions),
+  { ssr: false }
+)
 
 interface ClientData {
   _id: string
@@ -105,6 +125,25 @@ export default function ClientProfilePage() {
   const [assignments, setAssignments] = useState<AssignmentEntry[]>([])
   const [overloadPlan, setOverloadPlan] = useState<OverloadPlan | null>(null)
   const [overloadDialogOpen, setOverloadDialogOpen] = useState(false)
+
+  const activeAssignment = useMemo(
+    () => assignments.find((a) => a.status === "active"),
+    [assignments]
+  )
+
+  const routineExerciseIds = useMemo(
+    () => activeAssignment?.routine?.exercises?.map((e) => e.exerciseId) || [],
+    [activeAssignment]
+  )
+
+  const workoutSummary = useMemo(
+    () =>
+      workoutLogs.map((log) => ({
+        ...log,
+        completedCount: log.exercises.filter((e) => e.completed).length,
+      })),
+    [workoutLogs]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -390,16 +429,7 @@ export default function ClientProfilePage() {
         />
       </div>
 
-      {(() => {
-        const activeAssignment = assignments.find(
-          (a) => a.status === "active"
-        )
-        if (!activeAssignment) return null
-
-        const routineExerciseIds =
-          activeAssignment.routine?.exercises?.map((e) => e.exerciseId) || []
-
-        return (
+      {activeAssignment && (
           <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
@@ -471,8 +501,7 @@ export default function ClientProfilePage() {
               onSaved={() => setRefreshKey((k) => k + 1)}
             />
           </div>
-        )
-      })()}
+      )}
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
         <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
@@ -499,7 +528,7 @@ export default function ClientProfilePage() {
         <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
           Workout History
         </h2>
-        {workoutLogs.length === 0 ? (
+        {workoutSummary.length === 0 ? (
           <p className="text-zinc-500 dark:text-zinc-400 text-sm">
             No workouts logged yet.
           </p>
@@ -515,9 +544,7 @@ export default function ClientProfilePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {workoutLogs.map((log) => {
-                const completed = log.exercises.filter((e) => e.completed).length
-                return (
+              {workoutSummary.map((log) => (
                   <TableRow key={log._id}>
                     <TableCell className="font-medium">
                       {new Date(log.date).toLocaleDateString()}
@@ -562,12 +589,11 @@ export default function ClientProfilePage() {
                     </TableCell>
                     <TableCell>
                       <span className="text-zinc-600 dark:text-zinc-400">
-                        {completed}/{log.exercises.length}
+                        {log.completedCount}/{log.exercises.length}
                       </span>
                     </TableCell>
                   </TableRow>
-                )
-              })}
+              ))}
             </TableBody>
           </Table>
         )}

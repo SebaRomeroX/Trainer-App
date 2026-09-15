@@ -14,7 +14,11 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .lean()
 
-    return NextResponse.json({ routines })
+    return NextResponse.json({ routines }, {
+      headers: {
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=30",
+      },
+    })
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

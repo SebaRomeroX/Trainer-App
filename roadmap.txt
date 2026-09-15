@@ -437,8 +437,13 @@ Skipped items (pending future consideration):
   - [ ] Add `not-found.tsx` for 404 pages
 
 - [ ] **Performance**
+  - [x] Lazy load heavy components (next/dynamic)
+  - [x] Fix recharts import for tree-shaking
+  - [x] Add loading.tsx to dashboard routes
+  - [x] Memoize expensive computations (useMemo)
+  - [x] Cache-Control headers on stable API responses
+  - [x] Configure next.config.ts optimizations (optimizePackageImports)
   - [ ] Image optimization (next/image, blur placeholders)
-  - [ ] Lazy loading for below-fold content
   - [ ] Database query optimization (indexes, select fields)
   - [ ] Lighthouse audit (90+ score target)
 
@@ -446,6 +451,12 @@ Skipped items (pending future consideration):
 - [ ] Accessibility audit (WCAG 2.1)
 - [ ] SEO optimization
 - [ ] PWA setup (offline support)
+
+#### Deferred for Future Versions
+The following performance improvements are significant architectural changes that should be planned as dedicated efforts:
+- **Server Components for data fetching** — Migrate dashboard pages from `"use client"` + `useEffect` to Server Components with direct data loading. Eliminates waterfall requests (HTML → JS → hydrate → fetch → render).
+- **SWR / TanStack Query** — Replace manual `useEffect` + `useState` data fetching with a proper caching/deduplication layer. Adds stale-while-revalidate, optimistic updates, and request deduplication.
+- **MongoDB aggregation pipelines** — Rewrite heavy JS-side computation (e.g., trainer dashboard streaks/stats) as server-side aggregations for better performance at scale.
 
 ---
 

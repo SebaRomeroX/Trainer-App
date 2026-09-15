@@ -33,7 +33,11 @@ export async function GET(request: Request) {
       .sort({ createdAt: -1 })
       .lean()
 
-    return NextResponse.json({ exercises })
+    return NextResponse.json({ exercises }, {
+      headers: {
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=30",
+      },
+    })
   } catch (error) {
     if (error instanceof UnauthorizedError) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
