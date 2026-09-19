@@ -419,45 +419,67 @@ Skipped items (pending future consideration):
 
 ---
 
-### v0.5b - UI/UX Polish & Performance (Week 10)
+### v0.5b - UI/UX Polish & Performance (Week 10) ✅ COMPLETE
 **Goal**: UI refinement, loading states, error handling, performance
 
 #### Must Have
-- [ ] **UI/UX Polish**
-  - [ ] Responsive design audit (mobile/tablet)
-  - [ ] Loading states and skeletons (reusable Skeleton component)
-  - [ ] Error handling and empty states (reusable EmptyState component)
+- [x] **UI/UX Polish**
+  - [x] Responsive design audit (mobile/tablet)
+  - [x] Loading states and skeletons (reusable Skeleton component)
+  - [x] Error handling and empty states (reusable EmptyState component)
   - [x] Toast notifications (install sonner)
-  - [ ] Confirmation dialogs (replace remaining window.confirm)
-  - [ ] Form validation messages (wire aria-invalid to error state)
+  - [x] Confirmation dialogs (replace remaining window.confirm)
+  - [x] Form validation messages (wire aria-invalid to error state)
 
 - [x] **Error Boundaries**
   - [x] Add `error.tsx` to dashboard routes (8 files: root, dashboard, trainer, clients, clients/[id], routines, routines/[id])
   - [x] Add `global-error.tsx` for unhandled errors
   - [x] Add `not-found.tsx` for 404 pages (global + dashboard)
 
-- [ ] **Performance**
+- [x] **Performance**
   - [x] Lazy load heavy components (next/dynamic)
   - [x] Fix recharts import for tree-shaking
   - [x] Add loading.tsx to dashboard routes
   - [x] Memoize expensive computations (useMemo)
   - [x] Cache-Control headers on stable API responses
   - [x] Configure next.config.ts optimizations (optimizePackageImports)
-  - [ ] Image optimization (next/image, blur placeholders)
-  - [ ] Database query optimization (indexes, select fields)
-  - [ ] Lighthouse audit (90+ score target)
+  - [x] Image optimization (next/image, blur placeholders)
+  - [x] Database query optimization (indexes, aggregation pipelines)
+  - [x] Lighthouse audit (90+ score target)
+  - [x] Mobile responsive tables (card layout on mobile)
+  - [x] SWR data fetching (caching, deduplication, revalidation)
+  - [x] Server Components for read-only pages
 
 #### Nice to Have
-- [ ] Accessibility audit (WCAG 2.1)
-- [ ] SEO optimization
+- [x] Accessibility audit (WCAG 2.1) — aria-invalid, aria-labels, focus management, contrast fixes
+- [x] SEO optimization — metadata, semantic HTML, OpenGraph
 - [ ] PWA setup (offline support)
 
-#### Deferred for Future Versions
-The following performance improvements are significant architectural changes that should be planned as dedicated efforts:
-- **Full-card-based mobile table alternative** — Replace horizontal-scroll tables with stacked card layouts on mobile for `ClientTable`, `ExerciseTable`, `RoutineTable`, and `WorkoutHistoryTable`. Larger refactor, deferred for dedicated effort.
-- **Server Components for data fetching** — Migrate dashboard pages from `"use client"` + `useEffect` to Server Components with direct data loading. Eliminates waterfall requests (HTML → JS → hydrate → fetch → render).
-- **SWR / TanStack Query** — Replace manual `useEffect` + `useState` data fetching with a proper caching/deduplication layer. Adds stale-while-revalidate, optimistic updates, and request deduplication.
-- **MongoDB aggregation pipelines** — Rewrite heavy JS-side computation (e.g., trainer dashboard streaks/stats) as server-side aggregations for better performance at scale.
+#### Phase 4: Architectural Improvements (Completed)
+**Commits**: `3539352`..`b60dc1b`
+
+- [x] **SWR Data Hooks** (`src/hooks/`)
+  - [x] Install SWR
+  - [x] Create 9 custom hooks: useDashboard, useClients, useClientDetail, useExercises, useRoutines, useRoutine, useWorkoutStats, useWorkoutLogs, useFeedback, useMessages
+  - [x] Wire hooks into all dashboard pages (net -300 lines)
+  - [x] Replace manual useEffect/useState/fetch patterns
+
+- [x] **Mobile Card Tables**
+  - [x] ClientTable — cards with name, email, fitness level, actions
+  - [x] ExerciseTable — cards with name, category, difficulty, muscle groups
+  - [x] RoutineTable — cards with name, duration, exercise count, actions
+  - [x] WorkoutHistoryTable — cards with routine, date, rating, exercises
+  - [x] Client detail inline workout table — responsive cards
+  - [x] Touch targets ≥44px for mobile interaction
+
+- [x] **Server Components**
+  - [x] Client History Detail — server component fetches log, passes to client component
+  - [x] Trainer Routine Edit — server component fetches routine, passes to client component
+  - [x] Eliminates client-side waterfall (HTML → JS → hydrate → fetch → render)
+
+- [x] **Cleanup**
+  - [x] Consistent Skeleton loading states across all routes
+  - [x] Remove unused MobileCard component
 
 ---
 
