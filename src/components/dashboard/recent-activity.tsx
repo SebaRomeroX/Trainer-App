@@ -1,6 +1,7 @@
 "use client"
 
-import { Star } from "lucide-react"
+import { Star, Activity } from "lucide-react"
+import { EmptyState } from "@/components/shared/empty-state"
 
 interface Activity {
   workoutLogId: string
@@ -48,9 +49,11 @@ export function RecentActivity({ activities, isLoading }: RecentActivityProps) {
           ))}
         </div>
       ) : activities.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-          No recent workouts from your clients.
-        </p>
+        <EmptyState
+          icon={Activity}
+          title="No recent activity"
+          description="No recent workouts from your clients."
+        />
       ) : (
         <div className="space-y-3">
           {activities.map((activity) => (

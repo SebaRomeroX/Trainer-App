@@ -5,7 +5,8 @@ import { toast } from "sonner"
 import { StatsCards } from "@/components/workouts/stats-cards"
 import { WeeklyChart } from "@/components/workouts/weekly-chart"
 import { RatingsChart } from "@/components/charts/ratings-chart"
-import { Loader2 } from "lucide-react"
+import { EmptyState } from "@/components/shared/empty-state"
+import { Loader2, TrendingUp } from "lucide-react"
 
 interface StatsData {
   totalWorkouts: number
@@ -104,10 +105,12 @@ export default function ProgressPage() {
           </div>
         </>
       ) : (
-        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-12 text-center">
-          <p className="text-zinc-500 dark:text-zinc-400">
-            No data yet. Complete your first workout to see your progress.
-          </p>
+        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+          <EmptyState
+            icon={TrendingUp}
+            title="No data yet"
+            description="Complete your first workout to see your progress."
+          />
         </div>
       )}
     </div>

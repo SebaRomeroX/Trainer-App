@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
-import { Bell, CheckCheck } from "lucide-react"
+import { Bell, CheckCheck, Inbox } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/shared/empty-state"
 import { NotificationItem } from "./notification-item"
 
 interface Notification {
@@ -119,9 +120,11 @@ export function NotificationDropdown() {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                No notifications yet.
-              </div>
+              <EmptyState
+                icon={Inbox}
+                title="No notifications yet"
+                className="py-8"
+              />
             ) : (
               notifications.map((notification) => (
                 <NotificationItem

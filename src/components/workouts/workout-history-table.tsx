@@ -9,8 +9,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Star, Eye } from "lucide-react"
+import { Star, Eye, History } from "lucide-react"
 import Link from "next/link"
+import { EmptyState } from "@/components/shared/empty-state"
 
 interface RoutineInfo {
   _id: string
@@ -45,10 +46,12 @@ const difficultyColors: Record<string, string> = {
 export function WorkoutHistoryTable({ logs }: WorkoutHistoryTableProps) {
   if (logs.length === 0) {
     return (
-      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-12 text-center">
-        <p className="text-zinc-500 dark:text-zinc-400">
-          No workouts yet. Start your first workout to see your history here.
-        </p>
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+        <EmptyState
+          icon={History}
+          title="No workouts yet"
+          description="Start your first workout to see your history here."
+        />
       </div>
     )
   }

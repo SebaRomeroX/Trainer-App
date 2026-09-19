@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
-import { Send } from "lucide-react"
+import { Send, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/shared/empty-state"
 
 interface Message {
   _id: string
@@ -122,7 +123,11 @@ export default function ClientMessagesPage() {
           </div>
         ) : messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-zinc-500 dark:text-zinc-400">No messages yet. Send a message to your trainer!</p>
+            <EmptyState
+              icon={MessageSquare}
+              title="No messages yet"
+              description="Send a message to your trainer!"
+            />
           </div>
         ) : (
           messages.map((msg) => {

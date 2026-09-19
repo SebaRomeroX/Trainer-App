@@ -15,6 +15,8 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts"
+import { EmptyState } from "@/components/shared/empty-state"
+import { Star } from "lucide-react"
 
 interface ChartDataPoint {
   date: string
@@ -98,9 +100,11 @@ export function RatingsChart({ clientId, useSelf }: RatingsChartProps) {
 
   if (!shouldFetch) {
     return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        No ratings data yet.
-      </p>
+      <EmptyState
+        icon={Star}
+        title="No ratings data yet"
+        description="Ratings will appear here once you have workout data."
+      />
     )
   }
 
@@ -114,9 +118,11 @@ export function RatingsChart({ clientId, useSelf }: RatingsChartProps) {
 
   if (data.length === 0) {
     return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        No ratings data yet. Ratings appear after workouts and feedback.
-      </p>
+      <EmptyState
+        icon={Star}
+        title="No ratings data yet"
+        description="Ratings appear after workouts and feedback."
+      />
     )
   }
 

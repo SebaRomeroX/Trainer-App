@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
-import { Send } from "lucide-react"
+import { Send, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/shared/empty-state"
 
 interface Message {
   _id: string
@@ -151,7 +152,11 @@ export default function TrainerMessagesPage() {
               ))}
             </div>
           ) : conversations.length === 0 ? (
-            <p className="p-4 text-sm text-zinc-500">No conversations yet.</p>
+            <EmptyState
+              icon={MessageSquare}
+              title="No conversations yet"
+              className="py-8"
+            />
           ) : (
             conversations.map((conv) => (
               <button
@@ -186,7 +191,11 @@ export default function TrainerMessagesPage() {
       <div className="flex-1 flex flex-col">
         {!selectedUserId ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-zinc-500 dark:text-zinc-400">Select a conversation to start messaging.</p>
+            <EmptyState
+              icon={MessageSquare}
+              title="Select a conversation"
+              description="Choose a conversation from the sidebar to start messaging."
+            />
           </div>
         ) : (
           <>
@@ -204,7 +213,12 @@ export default function TrainerMessagesPage() {
                   ))}
                 </div>
               ) : messages.length === 0 ? (
-                <p className="text-center text-sm text-zinc-500 py-8">No messages yet. Send the first one!</p>
+                <EmptyState
+                  icon={MessageSquare}
+                  title="No messages yet"
+                  description="Send the first one!"
+                  className="py-8"
+                />
               ) : (
                 messages.map((msg) => {
                   const isMine = msg.senderId._id !== selectedUserId

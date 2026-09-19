@@ -1,5 +1,8 @@
 "use client"
 
+import { EmptyState } from "@/components/shared/empty-state"
+import { BarChart3 } from "lucide-react"
+
 interface WeekDay {
   label: string
   count: number
@@ -37,9 +40,12 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-zinc-400 text-center py-8">
-          No workouts this week yet.
-        </p>
+        <EmptyState
+          icon={BarChart3}
+          title="No workouts this week"
+          description="Start a workout to see your weekly activity."
+          className="py-8"
+        />
       )}
     </div>
   )

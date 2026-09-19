@@ -15,9 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp } from "lucide-react"
+import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp, Target, FileText } from "lucide-react"
 import Link from "next/link"
 import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
+import { EmptyState } from "@/components/shared/empty-state"
 import dynamic from "next/dynamic"
 
 const AssignRoutineDialog = dynamic(
@@ -368,7 +369,11 @@ export default function ClientProfilePage() {
               ))}
             </div>
           ) : (
-            <p className="text-zinc-500">No goals set yet.</p>
+            <EmptyState
+              icon={Target}
+              title="No goals set yet"
+              className="py-2"
+            />
           )}
         </div>
       </div>
@@ -417,7 +422,11 @@ export default function ClientProfilePage() {
             {client.notes}
           </p>
         ) : (
-          <p className="text-zinc-500">No notes yet.</p>
+          <EmptyState
+            icon={FileText}
+            title="No notes yet"
+            className="py-2"
+          />
         )}
       </div>
 
@@ -538,9 +547,11 @@ export default function ClientProfilePage() {
           Workout History
         </h2>
         {workoutSummary.length === 0 ? (
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-            No workouts logged yet.
-          </p>
+          <EmptyState
+            icon={TrendingUp}
+            title="No workouts logged yet"
+            className="py-4"
+          />
         ) : (
           <Table>
             <TableHeader>

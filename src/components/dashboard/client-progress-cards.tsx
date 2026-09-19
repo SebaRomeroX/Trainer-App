@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Progress, ProgressLabel, ProgressValue } from "@/components/ui/progress"
-import { Flame } from "lucide-react"
+import { EmptyState } from "@/components/shared/empty-state"
+import { Flame, Users } from "lucide-react"
 
 interface ClientData {
   clientId: string
@@ -54,9 +55,11 @@ export function ClientProgressCards({ clients, isLoading }: ClientProgressCardsP
           ))}
         </div>
       ) : clients.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-          No clients yet. Add clients to see their progress here.
-        </p>
+        <EmptyState
+          icon={Users}
+          title="No clients yet"
+          description="Add clients to see their progress here."
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
