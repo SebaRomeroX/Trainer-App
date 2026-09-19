@@ -59,6 +59,7 @@ export function ClientForm({ onSubmit, onCancel, isLoading }: ClientFormProps) {
         <Input
           id="name"
           placeholder="Client's full name"
+          aria-invalid={!!errors.name}
           {...register("name")}
         />
         {errors.name && (
@@ -72,6 +73,7 @@ export function ClientForm({ onSubmit, onCancel, isLoading }: ClientFormProps) {
           id="email"
           type="email"
           placeholder="client@example.com"
+          aria-invalid={!!errors.email}
           {...register("email")}
         />
         {errors.email && (
@@ -120,6 +122,7 @@ export function ClientForm({ onSubmit, onCancel, isLoading }: ClientFormProps) {
           id="notes"
           placeholder="Optional notes about the client..."
           rows={3}
+          aria-invalid={!!errors.notes}
           {...register("notes")}
         />
         {errors.notes && (

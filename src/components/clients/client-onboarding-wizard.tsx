@@ -231,6 +231,7 @@ export function ClientOnboardingWizard({
               <Input
                 id="onb-name"
                 placeholder="Client's full name"
+                aria-invalid={!!errors.name}
                 {...register("name")}
               />
               {errors.name && (
@@ -244,6 +245,7 @@ export function ClientOnboardingWizard({
                 id="onb-email"
                 type="email"
                 placeholder="client@example.com"
+                aria-invalid={!!errors.email}
                 {...register("email")}
               />
               {errors.email && (
@@ -296,6 +298,7 @@ export function ClientOnboardingWizard({
                 id="onb-notes"
                 placeholder="Optional notes about the client..."
                 rows={2}
+                aria-invalid={!!errors.notes}
                 {...register("notes")}
               />
               {errors.notes && (

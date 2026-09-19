@@ -79,6 +79,7 @@ export function ExerciseForm({
         <Input
           id="name"
           placeholder="e.g. Bench Press"
+          aria-invalid={!!errors.name}
           {...register("name")}
         />
         {errors.name && (
@@ -92,6 +93,7 @@ export function ExerciseForm({
           id="description"
           placeholder="Optional description..."
           rows={3}
+          aria-invalid={!!errors.description}
           {...register("description")}
         />
         {errors.description && (

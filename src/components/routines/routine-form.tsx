@@ -69,6 +69,7 @@ export function RoutineForm({
         <Input
           id="name"
           placeholder="e.g. Upper Body Strength"
+          aria-invalid={!!errors.name}
           {...register("name")}
         />
         {errors.name && (
@@ -82,6 +83,7 @@ export function RoutineForm({
           id="description"
           placeholder="Optional description..."
           rows={3}
+          aria-invalid={!!errors.description}
           {...register("description")}
         />
         {errors.description && (
@@ -116,6 +118,7 @@ export function RoutineForm({
             id="duration"
             type="number"
             min={1}
+            aria-invalid={!!errors.duration}
             {...register("duration", { valueAsNumber: true })}
           />
           {errors.duration && (
