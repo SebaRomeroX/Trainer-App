@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { useRouter, useParams } from "next/navigation"
 import { RoutineForm } from "@/components/routines/routine-form"
 import { RoutineChangeLog } from "@/components/routines/routine-change-log"
 import type { CreateRoutineInput } from "@/validators/routine"
 import type { RoutineExerciseInput } from "@/validators/routine"
+import { useRoutine } from "@/hooks/use-routines"
 
 interface RoutineData {
   name: string
@@ -22,9 +23,31 @@ interface ApiExercise {
   sets?: number
   reps?: number
   duration?: number
-  restTime: number
+  restTime?: number
   notes?: string
-  order: number
+  order?: number
+}
+
+function mapRoutine(apiRoutine: { name: string; description?: string; difficulty: string; duration: number; exercises: ApiExercise[]; isTemplate: boolean }): RoutineData {
+  return {
+    name: apiRoutine.name,
+    description: apiRoutine.description,
+    difficulty: apiRoutine.difficulty,
+    duration: apiRoutine.duration,
+    exercises: apiRoutine.exercises.map((ex) => ({
+      exerciseId:
+        typeof ex.exerciseId === "object"
+          ? ex.exerciseId._id
+          : ex.exerciseId,
+      sets: ex.sets,
+      reps: ex.reps,
+      duration: ex.duration,
+      restTime: ex.restTime ?? 60,
+      notes: ex.notes,
+      order: ex.order ?? 0,
+    })),
+    isTemplate: apiRoutine.isTemplate,
+  }
 }
 
 export default function EditRoutinePage() {
@@ -32,41 +55,10 @@ export default function EditRoutinePage() {
   const params = useParams()
   const id = params.id as string
 
-  const [routine, setRoutine] = useState<RoutineData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { routine: apiRoutine, isLoading } = useRoutine(id)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
-    fetch(`/api/routines/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.routine && !cancelled) {
-          setRoutine({
-            name: data.routine.name,
-            description: data.routine.description,
-            difficulty: data.routine.difficulty,
-            duration: data.routine.duration,
-            exercises: data.routine.exercises.map((ex: ApiExercise) => ({
-              exerciseId:
-                typeof ex.exerciseId === "object"
-                  ? ex.exerciseId._id
-                  : ex.exerciseId,
-              sets: ex.sets,
-              reps: ex.reps,
-              duration: ex.duration,
-              restTime: ex.restTime,
-              notes: ex.notes,
-              order: ex.order,
-            })),
-            isTemplate: data.routine.isTemplate,
-          })
-        }
-      })
-      .catch(() => { toast.error("Failed to load routine") })
-      .finally(() => { if (!cancelled) setIsLoading(false) })
-    return () => { cancelled = true }
-  }, [id])
+  const routine = apiRoutine ? mapRoutine(apiRoutine) : null
 
   const handleSubmit = async (data: CreateRoutineInput) => {
     setIsSubmitting(true)

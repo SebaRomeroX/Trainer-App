@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +14,9 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { WelcomeWizard } from "@/components/client/welcome-wizard"
+import useSWR from "swr"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 interface RoutineData {
   _id: string
@@ -57,73 +60,42 @@ const difficultyColors: Record<string, string> = {
 }
 
 export default function ClientDashboardPage() {
-  const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(null)
-  const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [fetchError, setFetchError] = useState(false)
   const [showWelcomeWizard, setShowWelcomeWizard] = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
-    async function fetchData() {
-      try {
-        const [routinesRes, statsRes, profileRes] = await Promise.all([
-          fetch("/api/clients/me/routines"),
-          fetch("/api/workout-logs/stats"),
-          fetch("/api/clients/me"),
-        ])
+  const routinesRes = useSWR<{ routines: Assignment[] }>(
+    "/api/clients/me/routines",
+    fetcher,
+    { dedupingInterval: 30000 }
+  )
+  const statsRes = useSWR<Stats>(
+    "/api/workout-logs/stats",
+    fetcher,
+    { dedupingInterval: 30000 }
+  )
+  const profileRes = useSWR<{ client: ClientProfile; trainer: TrainerProfile }>(
+    "/api/clients/me",
+    fetcher,
+    { dedupingInterval: 30000 }
+  )
 
-        const [routinesData, statsData, profileData] = await Promise.all([
-          routinesRes.ok ? routinesRes.json() : Promise.resolve(null),
-          statsRes.ok ? statsRes.json() : Promise.resolve(null),
-          profileRes.ok ? profileRes.json() : Promise.resolve(null),
-        ])
-
-        if (!cancelled) {
-          if (routinesData) {
-            setAssignments(routinesData.routines ?? [])
-          } else {
-            setFetchError(true)
-          }
-
-          if (statsData) {
-            setStats({
-              workoutsThisWeek: statsData.workoutsThisWeek,
-              currentStreak: statsData.currentStreak,
-            })
-          }
-
-          if (profileData?.client) {
-            setClientProfile(profileData.client)
-            if (!profileData.client.hasCompletedOnboarding) {
-              setShowWelcomeWizard(true)
-            }
-          }
-          if (profileData?.trainer) {
-            setTrainerProfile(profileData.trainer)
-          }
-        }
-      } catch {
-        if (!cancelled) setFetchError(true)
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-    fetchData()
-    return () => { cancelled = true }
-  }, [])
+  const assignments = routinesRes.data?.routines ?? []
+  const stats = statsRes.data ?? null
+  const clientProfile = profileRes.data?.client ?? null
+  const trainerProfile = profileRes.data?.trainer ?? null
+  const isLoading = routinesRes.isLoading || statsRes.isLoading || profileRes.isLoading
+  const fetchError = routinesRes.error || statsRes.error || profileRes.error
 
   const handleWizardComplete = () => {
-    setClientProfile((prev) =>
-      prev ? { ...prev, hasCompletedOnboarding: true } : null
-    )
     setShowWelcomeWizard(false)
+    profileRes.mutate()
   }
 
   const activeAssignment = assignments.find((a) => a.status === "active")
   const scheduledAssignment = assignments.find((a) => a.status === "scheduled")
+
+  if (clientProfile && !clientProfile.hasCompletedOnboarding && !showWelcomeWizard) {
+    setShowWelcomeWizard(true)
+  }
 
   return (
     <div className="space-y-6">

@@ -1,66 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
 import { StatsOverview } from "@/components/dashboard/stats-overview"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { ClientProgressCards } from "@/components/dashboard/client-progress-cards"
-
-interface DashboardData {
-  stats: {
-    totalClients: number
-    activeRoutines: number
-    workoutsThisWeek: number
-    avgRating: number
-  }
-  clients: Array<{
-    clientId: string
-    name: string
-    avatar?: string
-    fitnessLevel: string
-    workoutsThisWeek: number
-    totalWorkouts: number
-    streak: number
-    activeRoutineName: string | null
-    completionRate: number
-    lastWorkoutDate: string | null
-  }>
-  recentActivity: Array<{
-    workoutLogId: string
-    clientName: string
-    routineName: string
-    date: string
-    duration: number
-    rating?: number
-    exercisesCompleted: number
-    totalExercises: number
-  }>
-}
+import { useDashboard } from "@/hooks/use-dashboard"
 
 export default function TrainerDashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchDashboard() {
-      try {
-        const res = await fetch("/api/trainer/dashboard")
-        if (!cancelled && res.ok) {
-          const json = await res.json()
-          setData(json)
-        } else if (!cancelled) {
-          toast.error("Failed to load dashboard")
-        }
-      } catch {
-        if (!cancelled) toast.error("Failed to load dashboard")
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-    fetchDashboard()
-    return () => { cancelled = true }
-  }, [])
+  const { data, isLoading } = useDashboard()
 
   return (
     <div className="space-y-6">

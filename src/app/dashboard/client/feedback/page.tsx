@@ -1,48 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { FeedbackForm } from "@/components/feedback/feedback-form"
 import { FeedbackList } from "@/components/feedback/feedback-list"
 import { Loader2 } from "lucide-react"
-
-interface FeedbackItem {
-  _id: string
-  difficultyRating: number
-  enjoymentRating: number
-  message?: string
-  read: boolean
-  createdAt: string
-}
-
-async function loadFeedbacks(): Promise<FeedbackItem[]> {
-  const res = await fetch("/api/feedback?limit=50")
-  if (!res.ok) throw new Error("Failed to load feedback")
-  const data = await res.json()
-  return data.feedbacks
-}
+import { useFeedback } from "@/hooks/use-feedback"
 
 export default function FeedbackPage() {
-  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    loadFeedbacks()
-      .then((data) => {
-        if (!cancelled) {
-          setFeedbacks(data)
-          setLoadError(null)
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) setLoadError(err.message || "Failed to load feedback")
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-    return () => { cancelled = true }
-  }, [])
+  const { feedbacks, isLoading, error, mutate } = useFeedback()
 
   const handleSubmit = async (data: {
     difficultyRating: number
@@ -62,13 +26,7 @@ export default function FeedbackPage() {
       throw new Error(errorData.error || "Failed to submit feedback")
     }
 
-    try {
-      const updated = await loadFeedbacks()
-      setFeedbacks(updated)
-      setLoadError(null)
-    } catch {
-      // Keep existing list if re-fetch fails after successful submission
-    }
+    mutate()
   }
 
   return (
@@ -92,9 +50,9 @@ export default function FeedbackPage() {
           <div className="flex items-center justify-center py-10">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
           </div>
-        ) : loadError ? (
+        ) : error ? (
           <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 p-4">
-            <p className="text-sm text-red-600 dark:text-red-400">{loadError}</p>
+            <p className="text-sm text-red-600 dark:text-red-400">Failed to load feedback</p>
           </div>
         ) : (
           <FeedbackList feedbacks={feedbacks} />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,20 +8,11 @@ import { RoutineTable } from "@/components/routines/routine-table"
 import { RoutineDeleteDialog } from "@/components/routines/routine-delete-dialog"
 import { AssignRoutineDialog } from "@/components/routines/assign-routine-dialog"
 import { Plus } from "lucide-react"
-
-interface RoutineRow {
-  _id: string
-  name: string
-  difficulty: string
-  duration: number
-  exercises: { exerciseId: string }[]
-  isTemplate: boolean
-}
+import { useRoutines, type RoutineRow } from "@/hooks/use-routines"
 
 export default function RoutinesPage() {
   const router = useRouter()
-  const [routines, setRoutines] = useState<RoutineRow[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { routines, isLoading, mutate } = useRoutines()
 
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingRoutine, setDeletingRoutine] = useState<RoutineRow | null>(
@@ -34,29 +25,6 @@ export default function RoutinesPage() {
     null
   )
 
-  const fetchRoutines = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch("/api/routines")
-      if (res.ok) {
-        const data = await res.json()
-        setRoutines(data.routines)
-      } else {
-        toast.error("Failed to load routines")
-      }
-    } catch {
-      toast.error("Failed to load routines")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  const [loaded, setLoaded] = useState(false)
-  if (!loaded) {
-    setLoaded(true)
-    fetchRoutines()
-  }
-
   const handleDelete = async () => {
     if (!deletingRoutine) return
     setIsDeleting(true)
@@ -67,7 +35,7 @@ export default function RoutinesPage() {
       if (res.ok) {
         setDeleteOpen(false)
         setDeletingRoutine(null)
-        fetchRoutines()
+        mutate()
       } else {
         toast.error("Failed to delete routine")
       }
@@ -136,7 +104,7 @@ export default function RoutinesPage() {
         mode="from-routine"
         routineId={assigningRoutine?._id}
         routineName={assigningRoutine?.name}
-        onAssigned={fetchRoutines}
+        onAssigned={() => mutate()}
       />
     </div>
   )

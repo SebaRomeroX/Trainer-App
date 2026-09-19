@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,25 +8,10 @@ import { ClientOnboardingWizard } from "@/components/clients/client-onboarding-w
 import { ClientTable } from "@/components/clients/client-table"
 import { ClientDeleteDialog } from "@/components/clients/client-delete-dialog"
 import { Plus, Search } from "lucide-react"
-
-interface ClientUser {
-  _id: string
-  name: string
-  email: string
-}
-
-interface Client {
-  _id: string
-  userId: ClientUser
-  fitnessLevel: string
-  goals: string[]
-  notes?: string
-  startDate?: string
-}
+import { useClients, type Client } from "@/hooks/use-clients"
 
 export default function ClientsPage() {
-  const [clients, setClients] = useState<Client[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { clients, isLoading, mutate } = useClients()
   const [search, setSearch] = useState("")
 
   const [wizardOpen, setWizardOpen] = useState(false)
@@ -34,28 +19,6 @@ export default function ClientsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  const fetchClients = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await fetch("/api/clients")
-      if (res.ok) {
-        const data = await res.json()
-        setClients(data.clients)
-      } else {
-        toast.error("Failed to load clients")
-      }
-    } catch {
-      toast.error("Failed to load clients")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const timer = setTimeout(fetchClients, 0)
-    return () => clearTimeout(timer)
-  }, [fetchClients])
 
   const filteredClients = clients.filter((client) => {
     if (!search) return true
@@ -76,7 +39,7 @@ export default function ClientsPage() {
       if (res.ok) {
         setDeleteOpen(false)
         setDeletingClient(null)
-        fetchClients()
+        mutate()
       } else {
         toast.error("Failed to delete client")
       }
@@ -133,7 +96,7 @@ export default function ClientsPage() {
       <ClientOnboardingWizard
         open={wizardOpen}
         onOpenChange={setWizardOpen}
-        onComplete={fetchClients}
+        onComplete={() => mutate()}
       />
 
       <ClientDeleteDialog

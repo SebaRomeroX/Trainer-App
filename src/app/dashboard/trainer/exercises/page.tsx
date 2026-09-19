@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,23 +15,14 @@ import { ExerciseFilters } from "@/components/exercises/exercise-filters"
 import { ExerciseDeleteDialog } from "@/components/exercises/exercise-delete-dialog"
 import { Plus } from "lucide-react"
 import type { CreateExerciseInput } from "@/validators/exercise"
-
-interface Exercise {
-  _id: string
-  name: string
-  description?: string
-  category: string
-  muscleGroups: string[]
-  equipment: string[]
-  difficulty: string
-}
+import { useExercises, type Exercise } from "@/hooks/use-exercises"
 
 export default function ExercisesPage() {
-  const [exercises, setExercises] = useState<Exercise[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
   const [difficulty, setDifficulty] = useState("all")
+
+  const { exercises, isLoading, mutate } = useExercises({ search, category, difficulty })
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
@@ -40,33 +31,6 @@ export default function ExercisesPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  const fetchExercises = useCallback(async () => {
-    setIsLoading(true)
-    const params = new URLSearchParams()
-    if (search) params.set("search", search)
-    if (category !== "all") params.set("category", category)
-    if (difficulty !== "all") params.set("difficulty", difficulty)
-
-    try {
-      const res = await fetch(`/api/exercises?${params.toString()}`)
-      if (res.ok) {
-        const data = await res.json()
-        setExercises(data.exercises)
-      } else {
-        toast.error("Failed to load exercises")
-      }
-    } catch {
-      toast.error("Failed to load exercises")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [search, category, difficulty])
-
-  useEffect(() => {
-    const timer = setTimeout(fetchExercises, 300)
-    return () => clearTimeout(timer)
-  }, [fetchExercises])
 
   const handleCreate = async (data: CreateExerciseInput) => {
     setIsSubmitting(true)
@@ -78,7 +42,7 @@ export default function ExercisesPage() {
       })
       if (res.ok) {
         setFormOpen(false)
-        fetchExercises()
+        mutate()
       } else {
         toast.error("Failed to create exercise")
       }
@@ -101,7 +65,7 @@ export default function ExercisesPage() {
       if (res.ok) {
         setFormOpen(false)
         setEditingExercise(null)
-        fetchExercises()
+        mutate()
       } else {
         toast.error("Failed to update exercise")
       }
@@ -122,7 +86,7 @@ export default function ExercisesPage() {
       if (res.ok) {
         setDeleteOpen(false)
         setDeletingExercise(null)
-        fetchExercises()
+        mutate()
       } else {
         toast.error("Failed to delete exercise")
       }

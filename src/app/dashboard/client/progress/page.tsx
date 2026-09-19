@@ -7,6 +7,9 @@ import { WeeklyChart } from "@/components/workouts/weekly-chart"
 import { RatingsChart } from "@/components/charts/ratings-chart"
 import { EmptyState } from "@/components/shared/empty-state"
 import { Loader2, TrendingUp } from "lucide-react"
+import useSWR from "swr"
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 interface StatsData {
   totalWorkouts: number
@@ -21,62 +24,43 @@ interface WeekDay {
 }
 
 export default function ProgressPage() {
-  const [stats, setStats] = useState<StatsData | null>(null)
   const [weekData, setWeekData] = useState<WeekDay[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+
+  const statsRes = useSWR<StatsData>(
+    "/api/workout-logs/stats",
+    fetcher,
+    { dedupingInterval: 30000 }
+  )
+  const logsRes = useSWR<{ logs: Array<{ date: string }> }>(
+    "/api/workout-logs?limit=100",
+    fetcher,
+    { dedupingInterval: 30000 }
+  )
+
+  const stats = statsRes.data ?? null
+  const isLoading = statsRes.isLoading || logsRes.isLoading
 
   useEffect(() => {
-    let cancelled = false
-    async function fetchData() {
-      try {
-        const [statsRes, logsRes] = await Promise.all([
-          fetch("/api/workout-logs/stats"),
-          fetch("/api/workout-logs?limit=100"),
-        ])
+    if (!logsRes.data?.logs) return
 
-        if (statsRes.ok) {
-          const data = await statsRes.json()
-          if (!cancelled) {
-            setStats({
-              totalWorkouts: data.totalWorkouts,
-              workoutsThisWeek: data.workoutsThisWeek,
-              averageRating: data.averageRating,
-              currentStreak: data.currentStreak,
-            })
-          }
-        }
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setDate(now.getDate() - now.getDay())
+    startOfWeek.setHours(0, 0, 0, 0)
 
-        if (logsRes.ok) {
-          const logsData = await logsRes.json()
-          if (!cancelled) {
-            const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-            const now = new Date()
-            const startOfWeek = new Date(now)
-            startOfWeek.setDate(now.getDate() - now.getDay())
-            startOfWeek.setHours(0, 0, 0, 0)
-
-            const counts = new Array(7).fill(0)
-            for (const log of logsData.logs) {
-              const logDate = new Date(log.date)
-              if (logDate >= startOfWeek) {
-                counts[logDate.getDay()]++
-              }
-            }
-
-            setWeekData(
-              dayNames.map((label, i) => ({ label, count: counts[i] }))
-            )
-          }
-        }
-      } catch {
-        toast.error("Failed to load progress")
-      } finally {
-        if (!cancelled) setIsLoading(false)
+    const counts = new Array(7).fill(0)
+    for (const log of logsRes.data.logs) {
+      const logDate = new Date(log.date)
+      if (logDate >= startOfWeek) {
+        counts[logDate.getDay()]++
       }
     }
-    fetchData()
-    return () => { cancelled = true }
-  }, [])
+
+    setWeekData(
+      dayNames.map((label, i) => ({ label, count: counts[i] }))
+    )
+  }, [logsRes.data])
 
   return (
     <div className="space-y-6">

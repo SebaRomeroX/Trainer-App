@@ -1,63 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import { useState } from "react"
 import { WorkoutHistoryTable } from "@/components/workouts/workout-history-table"
 import { Loader2 } from "lucide-react"
-
-interface RoutineInfo {
-  _id: string
-  name: string
-  difficulty: string
-}
-
-interface WorkoutLog {
-  _id: string
-  routineId: RoutineInfo
-  date: string
-  duration: number
-  rating?: number
-  notes?: string
-  exercises: {
-    completed: boolean
-  }[]
-}
-
-interface Pagination {
-  page: number
-  limit: number
-  total: number
-  pages: number
-}
+import { useWorkoutLogs } from "@/hooks/use-workout-logs"
 
 export default function WorkoutHistoryPage() {
-  const [logs, setLogs] = useState<WorkoutLog[]>([])
-  const [pagination, setPagination] = useState<Pagination | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-
-  useEffect(() => {
-    let cancelled = false
-    async function fetchLogs() {
-      setIsLoading(true)
-      try {
-        const res = await fetch(`/api/workout-logs?page=${currentPage}&limit=15`)
-        if (res.ok) {
-          const data = await res.json()
-          if (!cancelled) {
-            setLogs(data.logs)
-            setPagination(data.pagination)
-          }
-        }
-      } catch {
-        toast.error("Failed to load workout history")
-      } finally {
-        if (!cancelled) setIsLoading(false)
-      }
-    }
-    fetchLogs()
-    return () => { cancelled = true }
-  }, [currentPage])
+  const { logs, pagination, isLoading } = useWorkoutLogs(currentPage, 15)
 
   return (
     <div className="space-y-6">
