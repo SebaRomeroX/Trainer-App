@@ -150,7 +150,7 @@ export default function ExercisesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-950 dark:text-zinc-100">
             Exercises
@@ -159,7 +159,7 @@ export default function ExercisesPage() {
             Manage your exercise library.
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
+        <Button onClick={() => setFormOpen(true)} className="self-start">
           <Plus className="size-4" />
           Add Exercise
         </Button>

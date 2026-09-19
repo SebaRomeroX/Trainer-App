@@ -94,7 +94,7 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-950 dark:text-zinc-100">
             Clients
@@ -103,7 +103,7 @@ export default function ClientsPage() {
             Manage your assigned clients.
           </p>
         </div>
-        <Button onClick={() => setWizardOpen(true)}>
+        <Button onClick={() => setWizardOpen(true)} className="self-start">
           <Plus className="size-4" />
           Add Client
         </Button>

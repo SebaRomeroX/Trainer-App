@@ -169,7 +169,7 @@ export default function ClientDashboardPage() {
 
           {activeAssignment ? (
             <div className="rounded-lg border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 p-6">
-              <div className="flex items-start justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">

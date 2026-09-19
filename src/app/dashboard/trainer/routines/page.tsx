@@ -94,7 +94,7 @@ export default function RoutinesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-zinc-950 dark:text-zinc-100">
             Routines
@@ -103,7 +103,7 @@ export default function RoutinesPage() {
             Create and manage workout routines.
           </p>
         </div>
-        <Button onClick={() => router.push("/dashboard/trainer/routines/new")}>
+        <Button onClick={() => router.push("/dashboard/trainer/routines/new")} className="self-start">
           <Plus className="size-4" />
           New Routine
         </Button>
