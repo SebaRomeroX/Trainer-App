@@ -52,66 +52,121 @@ export function ClientTable({ clients, onDelete }: ClientTableProps) {
   }
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Fitness Level</TableHead>
-            <TableHead>Start Date</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {clients.map((client) => (
-            <TableRow key={client._id}>
-              <TableCell className="font-medium">
-                {client.userId.name}
-              </TableCell>
-              <TableCell>
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  {client.userId.email}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={fitnessLevelColors[client.fitnessLevel]}
-                >
-                  {client.fitnessLevel}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  {client.startDate
-                    ? new Date(client.startDate).toLocaleDateString()
-                    : "—"}
-                </span>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  <Link
-                    href={`/dashboard/trainer/clients/${client._id}`}
-                    className="inline-flex size-7 items-center justify-center rounded-[min(var(--radius-md),12px)] hover:bg-muted hover:text-foreground"
-                    aria-label={`View ${client.userId.name}`}
-                  >
-                    <Eye />
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onDelete(client)}
-                    aria-label={`Delete ${client.userId.name}`}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
+    <>
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Fitness Level</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {clients.map((client) => (
+              <TableRow key={client._id}>
+                <TableCell className="font-medium">
+                  {client.userId.name}
+                </TableCell>
+                <TableCell>
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    {client.userId.email}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={fitnessLevelColors[client.fitnessLevel]}
+                  >
+                    {client.fitnessLevel}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    {client.startDate
+                      ? new Date(client.startDate).toLocaleDateString()
+                      : "—"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Link
+                      href={`/dashboard/trainer/clients/${client._id}`}
+                      className="inline-flex size-7 items-center justify-center rounded-[min(var(--radius-md),12px)] hover:bg-muted hover:text-foreground"
+                      aria-label={`View ${client.userId.name}`}
+                    >
+                      <Eye />
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onDelete(client)}
+                      aria-label={`Delete ${client.userId.name}`}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {clients.map((client) => (
+          <div
+            key={client._id}
+            className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1 min-w-0">
+                <p className="font-medium text-zinc-950 dark:text-zinc-100 truncate">
+                  {client.userId.name}
+                </p>
+                <p className="text-sm text-zinc-500 truncate">
+                  {client.userId.email}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className={`shrink-0 ml-2 ${fitnessLevelColors[client.fitnessLevel]}`}
+              >
+                {client.fitnessLevel}
+              </Badge>
+            </div>
+            <div className="flex items-center justify-between text-sm text-zinc-500">
+              <span>
+                {client.startDate
+                  ? `Started ${new Date(client.startDate).toLocaleDateString()}`
+                  : "No start date"}
+              </span>
+              <div className="flex gap-1">
+                <Link
+                  href={`/dashboard/trainer/clients/${client._id}`}
+                  className="inline-flex size-8 items-center justify-center rounded-[min(var(--radius-md),12px)] hover:bg-muted hover:text-foreground"
+                  aria-label={`View ${client.userId.name}`}
+                >
+                  <Eye className="h-4 w-4" />
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onDelete(client)}
+                  aria-label={`Delete ${client.userId.name}`}
+                  className="size-8"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   )
 }

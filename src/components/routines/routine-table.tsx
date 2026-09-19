@@ -53,84 +53,157 @@ export function RoutineTable({
   }
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Difficulty</TableHead>
-            <TableHead>Exercises</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead>Template</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {routines.map((routine) => (
-            <TableRow key={routine._id}>
-              <TableCell className="font-medium">{routine.name}</TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={difficultyColors[routine.difficulty]}
-                >
-                  {routine.difficulty}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <span className="inline-flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
-                  <Dumbbell className="h-3.5 w-3.5" />
-                  {routine.exercises.length}
-                </span>
-              </TableCell>
-              <TableCell>
-                <span className="inline-flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
-                  <Clock className="h-3.5 w-3.5" />
-                  {routine.duration} min
-                </span>
-              </TableCell>
-              <TableCell>
-                {routine.isTemplate ? (
-                  <Badge variant="secondary">Template</Badge>
-                ) : (
-                  <span className="text-zinc-400">—</span>
-                )}
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  {onAssign && (
+    <>
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Difficulty</TableHead>
+              <TableHead>Exercises</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Template</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {routines.map((routine) => (
+              <TableRow key={routine._id}>
+                <TableCell className="font-medium">{routine.name}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={difficultyColors[routine.difficulty]}
+                  >
+                    {routine.difficulty}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
+                    <Dumbbell className="h-3.5 w-3.5" />
+                    {routine.exercises.length}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
+                    <Clock className="h-3.5 w-3.5" />
+                    {routine.duration} min
+                  </span>
+                </TableCell>
+                <TableCell>
+                  {routine.isTemplate ? (
+                    <Badge variant="secondary">Template</Badge>
+                  ) : (
+                    <span className="text-zinc-400">—</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    {onAssign && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Assign to client"
+                        onClick={() => onAssign(routine)}
+                        aria-label={`Assign ${routine.name}`}
+                      >
+                        <UserPlus />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      title="Assign to client"
-                      onClick={() => onAssign(routine)}
-                      aria-label={`Assign ${routine.name}`}
+                      onClick={() => onEdit(routine)}
+                      aria-label={`Edit ${routine.name}`}
                     >
-                      <UserPlus />
+                      <Pencil />
                     </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onEdit(routine)}
-                    aria-label={`Edit ${routine.name}`}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onDelete(routine)}
-                    aria-label={`Delete ${routine.name}`}
-                  >
-                    <Trash2 />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onDelete(routine)}
+                      aria-label={`Delete ${routine.name}`}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {routines.map((routine) => (
+          <div
+            key={routine._id}
+            className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between">
+              <div className="space-y-1 min-w-0">
+                <p className="font-medium text-zinc-950 dark:text-zinc-100 truncate">
+                  {routine.name}
+                </p>
+                <div className="flex items-center gap-3 text-sm text-zinc-500">
+                  <span className="inline-flex items-center gap-1">
+                    <Dumbbell className="h-3.5 w-3.5" />
+                    {routine.exercises.length} exercises
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {routine.duration} min
+                  </span>
                 </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+              </div>
+              <div className="flex gap-1 shrink-0 ml-2">
+                {onAssign && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => onAssign(routine)}
+                    aria-label={`Assign ${routine.name}`}
+                    className="size-8"
+                  >
+                    <UserPlus className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onEdit(routine)}
+                  aria-label={`Edit ${routine.name}`}
+                  className="size-8"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onDelete(routine)}
+                  aria-label={`Delete ${routine.name}`}
+                  className="size-8"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="outline"
+                className={difficultyColors[routine.difficulty]}
+              >
+                {routine.difficulty}
+              </Badge>
+              {routine.isTemplate && (
+                <Badge variant="secondary">Template</Badge>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   )
 }

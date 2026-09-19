@@ -553,71 +553,97 @@ export default function ClientProfilePage() {
             className="py-4"
           />
         ) : (
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Routine</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Exercises</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {workoutSummary.map((log) => (
-                  <TableRow key={log._id}>
-                    <TableCell className="font-medium">
-                      {new Date(log.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <span>
-                          {log.routineId?.name ?? "Unknown"}
-                        </span>
-                        {log.routineId?.difficulty && (
-                          <Badge
-                            variant="outline"
-                            className={difficultyColors[log.routineId.difficulty] ?? ""}
-                          >
-                            {log.routineId.difficulty}
-                          </Badge>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Routine</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Exercises</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {workoutSummary.map((log) => (
+                    <TableRow key={log._id}>
+                      <TableCell className="font-medium">
+                        {new Date(log.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span>{log.routineId?.name ?? "Unknown"}</span>
+                          {log.routineId?.difficulty && (
+                            <Badge variant="outline" className={difficultyColors[log.routineId.difficulty] ?? ""}>
+                              {log.routineId.difficulty}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-zinc-600 dark:text-zinc-400">{log.duration} min</span>
+                      </TableCell>
+                      <TableCell>
+                        {log.rating ? (
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`h-3.5 w-3.5 ${i < log.rating! ? "fill-yellow-400 text-yellow-400" : "text-zinc-200 dark:text-zinc-700"}`} />
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-zinc-500 dark:text-zinc-400">—</span>
                         )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-zinc-600 dark:text-zinc-400">
-                        {log.duration} min
-                      </span>
-                    </TableCell>
-                    <TableCell>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-zinc-600 dark:text-zinc-400">{log.completedCount}/{log.exercises.length}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-3">
+              {workoutSummary.map((log) => (
+                <div key={log._id} className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-3 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1 min-w-0">
+                      <p className="font-medium text-zinc-950 dark:text-zinc-100 truncate">
+                        {log.routineId?.name ?? "Unknown"}
+                      </p>
+                      <p className="text-sm text-zinc-500">
+                        {new Date(log.date).toLocaleDateString()} · {log.duration} min
+                      </p>
+                    </div>
+                    {log.routineId?.difficulty && (
+                      <Badge variant="outline" className={`shrink-0 ml-2 ${difficultyColors[log.routineId.difficulty] ?? ""}`}>
+                        {log.routineId.difficulty}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-3">
                       {log.rating ? (
                         <div className="flex items-center gap-0.5">
                           {Array.from({ length: 5 }).map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-3.5 w-3.5 ${
-                                i < log.rating!
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-zinc-200 dark:text-zinc-700"
-                              }`}
-                            />
+                            <Star key={i} className={`h-3.5 w-3.5 ${i < log.rating! ? "fill-yellow-400 text-yellow-400" : "text-zinc-200 dark:text-zinc-700"}`} />
                           ))}
                         </div>
                       ) : (
-                        <span className="text-zinc-500 dark:text-zinc-400">—</span>
+                        <span className="text-zinc-400">No rating</span>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-zinc-600 dark:text-zinc-400">
+                      <span className="text-zinc-500">
                         {log.completedCount}/{log.exercises.length}
                       </span>
-                    </TableCell>
-                  </TableRow>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 

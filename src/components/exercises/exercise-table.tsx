@@ -60,66 +60,124 @@ export function ExerciseTable({
   }
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Muscle Groups</TableHead>
-            <TableHead>Difficulty</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {exercises.map((exercise) => (
-            <TableRow key={exercise._id}>
-              <TableCell className="font-medium">{exercise.name}</TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={categoryColors[exercise.category]}
-                >
-                  {exercise.category}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <span className="text-zinc-600 dark:text-zinc-400">
-                  {exercise.muscleGroups?.join(", ") || "—"}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant="outline"
-                  className={difficultyColors[exercise.difficulty]}
-                >
-                  {exercise.difficulty}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onEdit(exercise)}
-                    aria-label={`Edit ${exercise.name}`}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onDelete(exercise)}
-                    aria-label={`Delete ${exercise.name}`}
-                  >
-                    <Trash2 />
-                  </Button>
-                </div>
-              </TableCell>
+    <>
+      {/* Desktop table */}
+      <div className="hidden md:block rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Muscle Groups</TableHead>
+              <TableHead>Difficulty</TableHead>
+              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {exercises.map((exercise) => (
+              <TableRow key={exercise._id}>
+                <TableCell className="font-medium">{exercise.name}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={categoryColors[exercise.category]}
+                  >
+                    {exercise.category}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <span className="text-zinc-600 dark:text-zinc-400">
+                    {exercise.muscleGroups?.join(", ") || "—"}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant="outline"
+                    className={difficultyColors[exercise.difficulty]}
+                  >
+                    {exercise.difficulty}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onEdit(exercise)}
+                      aria-label={`Edit ${exercise.name}`}
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onDelete(exercise)}
+                      aria-label={`Delete ${exercise.name}`}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {exercises.map((exercise) => (
+          <div
+            key={exercise._id}
+            className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4 space-y-3"
+          >
+            <div className="flex items-start justify-between">
+              <p className="font-medium text-zinc-950 dark:text-zinc-100 truncate min-w-0">
+                {exercise.name}
+              </p>
+              <div className="flex gap-1 shrink-0 ml-2">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onEdit(exercise)}
+                  aria-label={`Edit ${exercise.name}`}
+                  className="size-8"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onDelete(exercise)}
+                  aria-label={`Delete ${exercise.name}`}
+                  className="size-8"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="outline"
+                className={categoryColors[exercise.category]}
+              >
+                {exercise.category}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={difficultyColors[exercise.difficulty]}
+              >
+                {exercise.difficulty}
+              </Badge>
+            </div>
+            {exercise.muscleGroups?.length > 0 && (
+              <p className="text-sm text-zinc-500">
+                {exercise.muscleGroups.join(", ")}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   )
 }
