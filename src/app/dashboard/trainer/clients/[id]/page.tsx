@@ -488,7 +488,7 @@ export default function ClientProfilePage() {
                           {ex.targetSets !== undefined && (
                             <span>{ex.targetSets} sets</span>
                           )}
-                          <span className="text-zinc-400">
+                          <span className="text-zinc-500 dark:text-zinc-400">
                             by{" "}
                             {new Date(ex.targetDate).toLocaleDateString()}
                           </span>
@@ -605,7 +605,7 @@ export default function ClientProfilePage() {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-zinc-400">—</span>
+                        <span className="text-zinc-500 dark:text-zinc-400">—</span>
                       )}
                     </TableCell>
                     <TableCell>
