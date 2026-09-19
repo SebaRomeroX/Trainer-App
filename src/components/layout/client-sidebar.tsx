@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, History, TrendingUp, MessageSquare, Settings } from "lucide-react"
+import { useSidebar } from "./sidebar-context"
 
 const links = [
   { href: "/dashboard/client", label: "My Workouts", icon: LayoutDashboard, exact: true },
@@ -15,6 +16,7 @@ const links = [
 
 export function ClientSidebar() {
   const pathname = usePathname()
+  const { setOpen } = useSidebar()
 
   return (
     <aside className="w-64 h-screen border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col">
@@ -37,6 +39,7 @@ export function ClientSidebar() {
                       : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                   }`}
                   href={link.href}
+                  onClick={() => setOpen(false)}
                 >
                   <link.icon className="h-5 w-5" />
                   {link.label}
