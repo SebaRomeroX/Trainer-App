@@ -31,6 +31,7 @@ const ClientProfileSchema = new Schema<IClientProfile>(
 );
 
 ClientProfileSchema.index({ trainerId: 1 });
+ClientProfileSchema.index({ userId: 1, trainerId: 1 });
 
 export const ClientProfile: Model<IClientProfile> =
   mongoose.models.ClientProfile ||

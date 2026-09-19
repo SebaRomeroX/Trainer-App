@@ -35,6 +35,7 @@ const FeedbackSchema = new Schema<IFeedback>(
 );
 
 FeedbackSchema.index({ clientId: 1, trainerId: 1 });
+FeedbackSchema.index({ clientId: 1, type: 1 });
 FeedbackSchema.index({ read: 1 });
 
 export const Feedback: Model<IFeedback> =
