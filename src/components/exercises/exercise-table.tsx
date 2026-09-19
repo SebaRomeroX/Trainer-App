@@ -102,6 +102,7 @@ export function ExerciseTable({
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => onEdit(exercise)}
+                    aria-label={`Edit ${exercise.name}`}
                   >
                     <Pencil />
                   </Button>
@@ -109,6 +110,7 @@ export function ExerciseTable({
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => onDelete(exercise)}
+                    aria-label={`Delete ${exercise.name}`}
                   >
                     <Trash2 />
                   </Button>

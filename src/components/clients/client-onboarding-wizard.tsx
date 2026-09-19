@@ -341,6 +341,7 @@ export function ClientOnboardingWizard({
                   size="icon"
                   onClick={handleCopyPassword}
                   className="shrink-0"
+                  aria-label="Copy password"
                 >
                   {copied ? (
                     <Check className="size-4 text-green-600" />

@@ -16,8 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Trainer App",
-  description: "Personal training application",
+  title: {
+    default: "Body Trainer App",
+    template: "%s | Body Trainer App",
+  },
+  description:
+    "Personal training management app for trainers and clients. Track workouts, manage routines, and monitor progress.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

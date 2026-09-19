@@ -170,7 +170,7 @@ export default function ClientMessagesPage() {
             className="flex-1"
             disabled={isSending}
           />
-          <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending}>
+          <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending} aria-label="Send message">
             <Send className="size-4" />
           </Button>
         </form>

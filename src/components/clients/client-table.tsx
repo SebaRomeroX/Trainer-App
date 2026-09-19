@@ -94,6 +94,7 @@ export function ClientTable({ clients, onDelete }: ClientTableProps) {
                   <Link
                     href={`/dashboard/trainer/clients/${client._id}`}
                     className="inline-flex size-7 items-center justify-center rounded-[min(var(--radius-md),12px)] hover:bg-muted hover:text-foreground"
+                    aria-label={`View ${client.userId.name}`}
                   >
                     <Eye />
                   </Link>
@@ -101,6 +102,7 @@ export function ClientTable({ clients, onDelete }: ClientTableProps) {
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => onDelete(client)}
+                    aria-label={`Delete ${client.userId.name}`}
                   >
                     <Trash2 />
                   </Button>

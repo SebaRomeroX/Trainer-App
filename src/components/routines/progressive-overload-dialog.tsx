@@ -265,6 +265,7 @@ export function ProgressiveOverloadDialog({
                       variant="ghost"
                       size="icon-sm"
                       onClick={() => removeTarget(index)}
+                      aria-label="Remove exercise target"
                     >
                       <Trash2 className="size-3.5" />
                     </Button>

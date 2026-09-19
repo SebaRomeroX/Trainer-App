@@ -123,7 +123,7 @@ export default function WorkoutLogDetailPage({
               &middot; {completed}/{log.exercises.length} exercises
             </p>
           </div>
-          <Button variant="ghost" size="icon-sm" onClick={handleDelete}>
+          <Button variant="ghost" size="icon-sm" onClick={handleDelete} aria-label="Delete workout log">
             <Trash2 className="h-4 w-4 text-red-500" />
           </Button>
         </div>

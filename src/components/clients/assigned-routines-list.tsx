@@ -149,6 +149,7 @@ export function AssignedRoutinesList({
                   variant="ghost"
                   size="icon-sm"
                   title="Mark as completed"
+                  aria-label="Mark as completed"
                   onClick={() =>
                     handleStatusChange(assignment._id, "completed")
                   }
@@ -159,6 +160,7 @@ export function AssignedRoutinesList({
                   variant="ghost"
                   size="icon-sm"
                   title="Pause"
+                  aria-label="Pause routine"
                   onClick={() => handleStatusChange(assignment._id, "paused")}
                 >
                   <Pause />
@@ -171,6 +173,7 @@ export function AssignedRoutinesList({
                 variant="ghost"
                 size="icon-sm"
                 title="Remove assignment"
+                aria-label="Remove assignment"
                 onClick={() => handleRemove(assignment._id)}
               >
                 <Trash2 />

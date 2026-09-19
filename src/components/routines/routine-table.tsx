@@ -104,6 +104,7 @@ export function RoutineTable({
                       size="icon-sm"
                       title="Assign to client"
                       onClick={() => onAssign(routine)}
+                      aria-label={`Assign ${routine.name}`}
                     >
                       <UserPlus />
                     </Button>
@@ -112,6 +113,7 @@ export function RoutineTable({
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => onEdit(routine)}
+                    aria-label={`Edit ${routine.name}`}
                   >
                     <Pencil />
                   </Button>
@@ -119,6 +121,7 @@ export function RoutineTable({
                     variant="ghost"
                     size="icon-sm"
                     onClick={() => onDelete(routine)}
+                    aria-label={`Delete ${routine.name}`}
                   >
                     <Trash2 />
                   </Button>
