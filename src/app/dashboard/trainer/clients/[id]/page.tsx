@@ -553,6 +553,7 @@ export default function ClientProfilePage() {
             className="py-4"
           />
         ) : (
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -616,6 +617,7 @@ export default function ClientProfilePage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </div>
 

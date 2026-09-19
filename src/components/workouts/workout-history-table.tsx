@@ -57,7 +57,7 @@ export function WorkoutHistoryTable({ logs }: WorkoutHistoryTableProps) {
   }
 
   return (
-    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+    <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>

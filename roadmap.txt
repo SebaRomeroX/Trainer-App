@@ -454,6 +454,7 @@ Skipped items (pending future consideration):
 
 #### Deferred for Future Versions
 The following performance improvements are significant architectural changes that should be planned as dedicated efforts:
+- **Full-card-based mobile table alternative** — Replace horizontal-scroll tables with stacked card layouts on mobile for `ClientTable`, `ExerciseTable`, `RoutineTable`, and `WorkoutHistoryTable`. Larger refactor, deferred for dedicated effort.
 - **Server Components for data fetching** — Migrate dashboard pages from `"use client"` + `useEffect` to Server Components with direct data loading. Eliminates waterfall requests (HTML → JS → hydrate → fetch → render).
 - **SWR / TanStack Query** — Replace manual `useEffect` + `useState` data fetching with a proper caching/deduplication layer. Adds stale-while-revalidate, optimistic updates, and request deduplication.
 - **MongoDB aggregation pipelines** — Rewrite heavy JS-side computation (e.g., trainer dashboard streaks/stats) as server-side aggregations for better performance at scale.
