@@ -107,7 +107,7 @@ export default function ClientMessagesPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden flex-col">
+    <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-4rem)] rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden flex-col">
       <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
         <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
           Messages with {trainerName}

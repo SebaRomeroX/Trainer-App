@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
-import { Send, MessageSquare } from "lucide-react"
+import { Send, MessageSquare, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -139,8 +139,9 @@ export default function TrainerMessagesPage() {
   const selectedConversation = conversations.find((c) => c.userId === selectedUserId)
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
-      <div className="w-72 border-r border-zinc-200 dark:border-zinc-800 flex flex-col">
+    <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-4rem)] rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden">
+      {/* Conversation list — hidden on mobile when chat is open */}
+      <div className={`${selectedUserId ? "hidden" : "flex"} md:flex w-full md:w-72 border-r border-zinc-200 dark:border-zinc-800 flex-col`}>
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
           <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">Messages</h2>
         </div>
@@ -188,7 +189,8 @@ export default function TrainerMessagesPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* Chat view — full width on mobile, flex-1 on desktop */}
+      <div className={`${selectedUserId ? "flex" : "hidden"} md:flex flex-1 flex-col min-w-0`}>
         {!selectedUserId ? (
           <div className="flex-1 flex items-center justify-center">
             <EmptyState
@@ -199,7 +201,16 @@ export default function TrainerMessagesPage() {
           </div>
         ) : (
           <>
-            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="md:hidden"
+                onClick={() => setSelectedUserId(null)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="sr-only">Back</span>
+              </Button>
               <h3 className="text-sm font-medium text-zinc-950 dark:text-zinc-100">
                 {selectedConversation?.user.name}
               </h3>
