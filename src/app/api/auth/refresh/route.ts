@@ -38,7 +38,7 @@ export async function POST() {
     }
 
     await connectDB()
-    const user = await User.findById(payload.userId).select("-password")
+    const user = await User.findById(payload.userId).select("-password +isAdmin")
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 401 })
     }
@@ -47,6 +47,7 @@ export async function POST() {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
+      isAdmin: user.isAdmin ?? false,
     }
 
     const newAccessToken = await signAccessToken(tokenPayload)

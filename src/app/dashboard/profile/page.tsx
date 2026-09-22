@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { getUser } from "@/lib/dal"
 import { LogoutButton } from "@/components/auth/logout-button"
+import { Badge } from "@/components/ui/badge"
+import { Shield } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Profile | Body Trainer App",
@@ -26,7 +28,15 @@ export default async function ProfilePage() {
         </div>
         <div>
           <p className="text-sm font-medium text-zinc-500">Role</p>
-          <p className="text-zinc-950 dark:text-zinc-100 capitalize">{user?.role ?? "—"}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-zinc-950 dark:text-zinc-100 capitalize">{user?.role ?? "—"}</p>
+            {user?.isAdmin && (
+              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300">
+                <Shield className="mr-1 h-3 w-3" />
+                Admin
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
 

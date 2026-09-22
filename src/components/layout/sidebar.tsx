@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, Settings, Dumbbell, ListOrdered, MessageSquare } from "lucide-react"
+import { LayoutDashboard, Users, Settings, Dumbbell, ListOrdered, MessageSquare, UserCog } from "lucide-react"
 import { useSidebar } from "./sidebar-context"
 
 const links = [
@@ -10,6 +10,7 @@ const links = [
   { href: "/dashboard/trainer/exercises", label: "Exercises", icon: Dumbbell },
   { href: "/dashboard/trainer/routines", label: "Routines", icon: ListOrdered },
   { href: "/dashboard/trainer/clients", label: "Clients", icon: Users },
+  { href: "/dashboard/trainer/trainers", label: "Trainers", icon: UserCog },
   { href: "/dashboard/trainer/messages", label: "Messages", icon: MessageSquare },
   { href: "/dashboard/profile", label: "Profile", icon: Settings },
 ]

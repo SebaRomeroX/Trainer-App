@@ -12,7 +12,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Link from "next/link"
 
 export function RegisterForm() {
@@ -61,27 +60,6 @@ export function RegisterForm() {
               <p className="text-sm text-red-500">
                 {state.errors.password[0]}
               </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>I am a...</Label>
-            <RadioGroup name="role" defaultValue="client" className="flex gap-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="trainer" id="trainer" />
-                <Label htmlFor="trainer" className="cursor-pointer">
-                  Trainer
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="client" id="client" />
-                <Label htmlFor="client" className="cursor-pointer">
-                  Client
-                </Label>
-              </div>
-            </RadioGroup>
-            {state?.errors?.role && (
-              <p className="text-sm text-red-500">{state.errors.role[0]}</p>
             )}
           </div>
 

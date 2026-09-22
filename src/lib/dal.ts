@@ -24,6 +24,7 @@ export interface Session {
   userId: string
   email: string
   role: "trainer" | "client"
+  isAdmin?: boolean
 }
 
 export const verifySession = cache(async (): Promise<Session | null> => {
@@ -40,6 +41,7 @@ export const verifySession = cache(async (): Promise<Session | null> => {
     userId: payload.userId,
     email: payload.email,
     role: payload.role,
+    isAdmin: payload.isAdmin ?? false,
   }
 })
 
@@ -58,6 +60,7 @@ export const getUser = cache(async () => {
     email: user.email,
     role: user.role,
     avatar: user.avatar,
+    isAdmin: (user as unknown as { isAdmin?: boolean }).isAdmin ?? false,
   }
 })
 

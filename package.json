@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "seed:admin": "npx tsx src/scripts/seed-admin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

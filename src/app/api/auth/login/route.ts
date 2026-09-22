@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
     const user = await User.findOne({
       email: validated.data.email,
-    }).select("+password")
+    }).select("+password +isAdmin")
 
     if (
       !user ||
@@ -52,6 +52,7 @@ export async function POST(request: Request) {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
+      isAdmin: user.isAdmin ?? false,
     }
 
     const accessToken = await signAccessToken(tokenPayload)

@@ -48,12 +48,14 @@ export async function POST(request: Request) {
     const user = await User.create({
       ...validated.data,
       password: hashedPassword,
+      role: "client",
     })
 
     const tokenPayload = {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
+      isAdmin: false,
     }
 
     const accessToken = await signAccessToken(tokenPayload)

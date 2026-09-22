@@ -13,9 +13,6 @@ export const RegisterSchema = z.object({
       error: "Password must contain at least one letter.",
     })
     .regex(/[0-9]/, { error: "Password must contain at least one number." }),
-  role: z.enum(["trainer", "client"], {
-    error: "Please select a valid role.",
-  }),
 })
 
 export const LoginSchema = z.object({

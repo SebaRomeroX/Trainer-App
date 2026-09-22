@@ -24,7 +24,6 @@ export async function register(
     name: formData.get("name"),
     email: formData.get("email"),
     password: formData.get("password"),
-    role: formData.get("role"),
   })
 
   if (!validated.success) {
@@ -44,12 +43,14 @@ export async function register(
   const user = await User.create({
     ...validated.data,
     password: hashedPassword,
+    role: "client",
   })
 
   const tokenPayload = {
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
+    isAdmin: false,
   }
 
   const accessToken = await signAccessToken(tokenPayload)
@@ -58,7 +59,7 @@ export async function register(
   await setAccessTokenCookie(accessToken)
   await setRefreshTokenCookie(refreshToken)
 
-  redirect(user.role === "trainer" ? "/dashboard/trainer" : "/dashboard/client")
+  redirect("/dashboard/client")
 }
 
 export async function login(
@@ -77,7 +78,7 @@ export async function login(
   await connectDB()
 
   const user = await User.findOne({ email: validated.data.email }).select(
-    "+password"
+    "+password +isAdmin"
   )
 
   if (
@@ -91,6 +92,7 @@ export async function login(
     userId: user._id.toString(),
     email: user.email,
     role: user.role,
+    isAdmin: user.isAdmin ?? false,
   }
 
   const accessToken = await signAccessToken(tokenPayload)

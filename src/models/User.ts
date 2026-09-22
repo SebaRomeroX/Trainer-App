@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password: string;
   name: string;
   role: "trainer" | "client";
+  isAdmin?: boolean;
   avatar?: string;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
@@ -19,6 +20,7 @@ const UserSchema = new Schema<IUser>(
     password: { type: String, required: true, select: false },
     name: { type: String, required: true, trim: true },
     role: { type: String, enum: ["trainer", "client"], required: true },
+    isAdmin: { type: Boolean, default: false, select: false },
     avatar: { type: String },
     passwordResetToken: { type: String, select: false },
     passwordResetExpires: { type: Date, select: false },
