@@ -13,18 +13,18 @@ import mongoose from "mongoose"
 import { User } from "../models/User"
 import { TrainerProfile } from "../models/TrainerProfile"
 
-const MONGODB_URI = process.env.MONGODB_URI
-if (!MONGODB_URI) {
-  console.error("Error: MONGODB_URI environment variable is required")
-  process.exit(1)
-}
-
-const ADMIN_EMAIL = process.env.ADMIN_TRAINER_EMAIL ?? "admin@trainer-app.com"
-const ADMIN_PASSWORD = process.env.ADMIN_TRAINER_PASSWORD ?? "changeme123"
-const ADMIN_NAME = process.env.ADMIN_TRAINER_NAME ?? "Admin Trainer"
-
 async function seed() {
-  await mongoose.connect(MONGODB_URI!)
+  const MONGODB_URI = process.env.MONGODB_URI
+  if (!MONGODB_URI) {
+    console.error("Error: MONGODB_URI environment variable is required")
+    process.exit(1)
+  }
+
+  const ADMIN_EMAIL = process.env.ADMIN_TRAINER_EMAIL ?? "admin@trainer-app.com"
+  const ADMIN_PASSWORD = process.env.ADMIN_TRAINER_PASSWORD ?? "changeme123"
+  const ADMIN_NAME = process.env.ADMIN_TRAINER_NAME ?? "Admin Trainer"
+
+  await mongoose.connect(MONGODB_URI)
   console.log("Connected to MongoDB")
 
   const existing = await User.findOne({ email: ADMIN_EMAIL })
@@ -34,7 +34,6 @@ async function seed() {
     process.exit(0)
   }
 
-  // bcrypt is not available in standalone scripts, use mongoose middleware or hash manually
   const bcrypt = await import("bcryptjs")
   const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 12)
 
@@ -60,7 +59,11 @@ async function seed() {
   await mongoose.disconnect()
 }
 
-seed().catch((err) => {
-  console.error("Seed failed:", err)
-  process.exit(1)
-})
+// Only run when executed directly, not when imported
+const isMain = process.argv[1]?.endsWith("seed-admin.ts")
+if (isMain) {
+  seed().catch((err) => {
+    console.error("Seed failed:", err)
+    process.exit(1)
+  })
+}
