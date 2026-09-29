@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import mongoose from "mongoose"
 import { connectDB } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Message } from "@/models/Message"
@@ -76,12 +77,22 @@ export async function GET(request: Request) {
 
       const clientUserIds = clientProfiles.map((p) => p.userId)
 
+      // Message.senderId/receiverId are ObjectIds; aggregate() does not cast
+      // strings the way find() does, so a string match would never succeed.
+      const trainerOid = mongoose.isValidObjectId(session.userId)
+        ? new mongoose.Types.ObjectId(session.userId)
+        : null
+
+      if (!trainerOid) {
+        return NextResponse.json({ conversations: [] })
+      }
+
       const conversations = await Message.aggregate([
         {
           $match: {
             $or: [
-              { senderId: session.userId, receiverId: { $in: clientUserIds } },
-              { senderId: { $in: clientUserIds }, receiverId: session.userId },
+              { senderId: trainerOid, receiverId: { $in: clientUserIds } },
+              { senderId: { $in: clientUserIds }, receiverId: trainerOid },
             ],
           },
         },
@@ -90,7 +101,7 @@ export async function GET(request: Request) {
           $group: {
             _id: {
               $cond: [
-                { $eq: ["$senderId", session.userId] },
+                { $eq: ["$senderId", trainerOid] },
                 "$receiverId",
                 "$senderId",
               ],
@@ -101,7 +112,7 @@ export async function GET(request: Request) {
                 $cond: [
                   {
                     $and: [
-                      { $eq: ["$receiverId", session.userId] },
+                      { $eq: ["$receiverId", trainerOid] },
                       { $eq: ["$read", false] },
                     ],
                   },
