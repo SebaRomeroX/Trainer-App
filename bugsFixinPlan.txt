@@ -92,11 +92,14 @@ Mark [x] when fixed. Add notes after each item as needed.
      Fix: Add RoutineChangeLog.deleteMany({ clientId: userId })
           to the Promise.all array.
 
-[ ] 12. Orphaned references on exercise deletion
+[x] 12. Orphaned references on exercise deletion
      File: src/app/api/exercises/[id]/route.ts (lines 110-125)
      Problem: ProgressiveOverloadPlan, OverloadSuggestion, and
               WorkoutLog retain stale exerciseId refs.
      Fix: Add $pull/cleanup for all three collections.
+     Note: Fixed — DELETE now cascades: $pull from Routine, WorkoutLog,
+           and ProgressiveOverloadPlan exercises arrays, plus
+           OverloadSuggestion.deleteMany({ exerciseId }).
 
 [ ] 13. Orphaned ClientRoutine on routine deletion
      File: src/app/api/routines/[id]/route.ts (lines 139-142)

@@ -3,6 +3,9 @@ import { connectDB, validateObjectId } from "@/lib/db"
 import { requireRole, UnauthorizedError, ForbiddenError } from "@/lib/dal"
 import { Exercise } from "@/models/Exercise"
 import { Routine } from "@/models/Routine"
+import { WorkoutLog } from "@/models/WorkoutLog"
+import { ProgressiveOverloadPlan } from "@/models/ProgressiveOverloadPlan"
+import { OverloadSuggestion } from "@/models/OverloadSuggestion"
 import { UpdateExerciseSchema } from "@/validators/exercise"
 
 export async function GET(
@@ -119,10 +122,24 @@ export async function DELETE(
       )
     }
 
-    await Routine.updateMany(
-      { "exercises.exerciseId": id },
-      { $pull: { exercises: { exerciseId: id } } }
-    )
+    // Cascade-delete every reference to the exercise so no collection is
+    // left holding a dangling exerciseId (stale refs crash populate-based
+    // renders such as workout log details and overload suggestion lists).
+    await Promise.all([
+      Routine.updateMany(
+        { "exercises.exerciseId": id },
+        { $pull: { exercises: { exerciseId: id } } }
+      ),
+      WorkoutLog.updateMany(
+        { "exercises.exerciseId": id },
+        { $pull: { exercises: { exerciseId: id } } }
+      ),
+      ProgressiveOverloadPlan.updateMany(
+        { "exercises.exerciseId": id },
+        { $pull: { exercises: { exerciseId: id } } }
+      ),
+      OverloadSuggestion.deleteMany({ exerciseId: id }),
+    ])
 
     return NextResponse.json({ message: "Exercise deleted." })
   } catch (error) {
