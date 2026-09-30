@@ -225,6 +225,11 @@ export async function POST(request: Request) {
       content: validated.data.content,
     })
 
+    await message.populate([
+      { path: "senderId", select: "name avatar" },
+      { path: "receiverId", select: "name avatar" },
+    ])
+
     const sender = await User.findById(session.userId).select("name").lean()
     const senderName = sender?.name || "Someone"
     const shortContent =

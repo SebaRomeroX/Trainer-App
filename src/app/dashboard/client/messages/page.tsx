@@ -6,29 +6,31 @@ import { Send, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/shared/empty-state"
-
-interface Message {
-  _id: string
-  senderId: { _id: string; name: string; avatar?: string }
-  receiverId: { _id: string; name: string; avatar?: string }
-  content: string
-  read: boolean
-  createdAt: string
-}
+import { useMessages, type Message } from "@/hooks/use-messages"
+import { useErrorToast } from "@/hooks/use-error-toast"
 
 function formatTime(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 }
 
 export default function ClientMessagesPage() {
-  const [messages, setMessages] = useState<Message[]>([])
   const [trainerId, setTrainerId] = useState<string | null>(null)
   const [trainerName, setTrainerName] = useState<string>("Your Trainer")
   const [myUserId, setMyUserId] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastMessageIdRef = useRef<string | null>(null)
+
+  const {
+    messages,
+    isLoading: isLoadingMessages,
+    error: messagesError,
+    mutate: mutateMessages,
+  } = useMessages(trainerId)
+
+  useErrorToast(messagesError, "Failed to load messages")
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -38,47 +40,44 @@ export default function ClientMessagesPage() {
     let cancelled = false
     async function load() {
       try {
-        const [messagesRes, profileRes] = await Promise.all([
-          fetch("/api/messages"),
-          fetch("/api/clients/me"),
-        ])
-
-        if (!cancelled && messagesRes.ok) {
-          const data = await messagesRes.json()
-          setMessages(data.messages || [])
-
-          if (data.messages?.length > 0) {
-            const msg = data.messages[0] as Message
-            const other = msg.senderId._id !== msg.receiverId._id ? msg.senderId : msg.receiverId
-            setTrainerId(other._id)
-            setTrainerName(other.name)
-          }
-        } else if (!cancelled) {
-          toast.error("Failed to load messages")
-        }
-
-        if (!cancelled && profileRes.ok) {
-          const profileData = await profileRes.json()
-          if (profileData.client) {
-            setMyUserId(profileData.client._id)
-          }
-          if (profileData.trainer) {
-            setTrainerId((prev) => prev ?? profileData.trainer._id)
-            setTrainerName((prev) => prev === "Your Trainer" ? profileData.trainer.name : prev)
+        const res = await fetch("/api/clients/me")
+        if (!cancelled) {
+          if (res.ok) {
+            const profileData = await res.json()
+            if (profileData.client?._id) {
+              setMyUserId(profileData.client._id)
+            }
+            if (profileData.trainer) {
+              setTrainerId(profileData.trainer._id)
+              setTrainerName(profileData.trainer.name)
+            }
+          } else {
+            toast.error("Failed to load conversation")
           }
         }
       } catch {
-        if (!cancelled) toast.error("Failed to load messages")
+        if (!cancelled) toast.error("Failed to load conversation")
       } finally {
-        if (!cancelled) setIsLoading(false)
+        if (!cancelled) setIsLoadingProfile(false)
       }
     }
     load()
     return () => { cancelled = true }
   }, [])
 
+  // Reset scroll bookkeeping when the thread changes.
   useEffect(() => {
-    scrollToBottom()
+    lastMessageIdRef.current = null
+  }, [trainerId])
+
+  // Only scroll when a new message actually arrives — polls that return
+  // unchanged data must not yank the view while the client is reading.
+  useEffect(() => {
+    const lastId = messages[messages.length - 1]?._id ?? null
+    if (lastId && lastId !== lastMessageIdRef.current) {
+      lastMessageIdRef.current = lastId
+      scrollToBottom()
+    }
   }, [messages, scrollToBottom])
 
   const handleSend = async () => {
@@ -94,8 +93,13 @@ export default function ClientMessagesPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setMessages((prev) => [...prev, data.message])
         setNewMessage("")
+        await mutateMessages(
+          (current) => ({
+            messages: [...(current?.messages ?? []), data.message as Message],
+          }),
+          { revalidate: true }
+        )
       } else {
         toast.error("Failed to send message")
       }
@@ -105,6 +109,8 @@ export default function ClientMessagesPage() {
       setIsSending(false)
     }
   }
+
+  const isLoading = isLoadingProfile || isLoadingMessages
 
   return (
     <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-4rem)] rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 overflow-hidden flex-col">

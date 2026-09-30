@@ -1,6 +1,12 @@
 import useSWR from "swr"
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`)
+  }
+  return res.json()
+}
 
 export interface Message {
   _id: string
@@ -22,7 +28,12 @@ export function useConversations() {
   const { data, error, isLoading, mutate } = useSWR<{ conversations: Conversation[] }>(
     "/api/messages",
     fetcher,
-    { revalidateOnFocus: true, dedupingInterval: 10000 }
+    {
+      refreshInterval: 10000,
+      revalidateOnFocus: true,
+      revalidateIfStale: true,
+      dedupingInterval: 2000,
+    }
   )
   return { conversations: data?.conversations ?? [], error, isLoading, mutate }
 }
@@ -31,7 +42,12 @@ export function useMessages(userId: string | null) {
   const { data, error, isLoading, mutate } = useSWR<{ messages: Message[] }>(
     userId ? `/api/messages?with=${userId}` : null,
     fetcher,
-    { revalidateOnFocus: true, dedupingInterval: 5000 }
+    {
+      refreshInterval: 10000,
+      revalidateOnFocus: true,
+      revalidateIfStale: true,
+      dedupingInterval: 2000,
+    }
   )
   return { messages: data?.messages ?? [], error, isLoading, mutate }
 }

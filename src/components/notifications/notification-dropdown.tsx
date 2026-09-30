@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
+import useSWR from "swr"
 import { Bell, CheckCheck, Inbox } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/shared/empty-state"
+import { useErrorToast } from "@/hooks/use-error-toast"
 import { NotificationItem } from "./notification-item"
 
 interface Notification {
@@ -17,30 +19,40 @@ interface Notification {
   createdAt: string
 }
 
+interface NotificationsData {
+  notifications: Notification[]
+  unreadCount: number
+}
+
+const NOTIFICATIONS_KEY = "/api/notifications?limit=15"
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`)
+  }
+  return res.json() as Promise<NotificationsData>
+}
+
 export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        const res = await fetch("/api/notifications?limit=15")
-        if (res.ok && !cancelled) {
-          const data = await res.json()
-          setNotifications(data.notifications)
-          setUnreadCount(data.unreadCount)
-        }
-      } catch {
-        toast.error("Failed to load notifications")
-      }
+  const { data, error, mutate } = useSWR<NotificationsData>(
+    NOTIFICATIONS_KEY,
+    fetcher,
+    {
+      refreshInterval: 15000,
+      revalidateOnFocus: true,
+      dedupingInterval: 2000,
     }
-    load()
-    return () => { cancelled = true }
-  }, [])
+  )
+
+  useErrorToast(error, "Failed to load notifications")
+
+  const notifications = data?.notifications ?? []
+  const unreadCount = data?.unreadCount ?? 0
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -56,16 +68,29 @@ export function NotificationDropdown() {
   }, [isOpen])
 
   const handleMarkRead = async (id: string) => {
+    // Optimistic: flip the item and decrement the badge immediately.
+    await mutate(
+      (current) => {
+        if (!current) return current
+        const target = current.notifications.find((n) => n._id === id)
+        if (!target || target.read) return current
+        return {
+          notifications: current.notifications.map((n) =>
+            n._id === id ? { ...n, read: true } : n
+          ),
+          unreadCount: Math.max(0, current.unreadCount - 1),
+        }
+      },
+      { revalidate: false }
+    )
+
     try {
       const res = await fetch(`/api/notifications/${id}/read`, { method: "PUT" })
-      if (res.ok) {
-        setNotifications((prev) =>
-          prev.map((n) => (n._id === id ? { ...n, read: true } : n))
-        )
-        setUnreadCount((prev) => Math.max(0, prev - 1))
-      }
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      mutate()
     } catch {
       toast.error("Failed to mark notification as read")
+      mutate()
     }
   }
 
@@ -73,12 +98,20 @@ export function NotificationDropdown() {
     try {
       setLoading(true)
       const res = await fetch("/api/notifications/read-all", { method: "PUT" })
-      if (res.ok) {
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-        setUnreadCount(0)
-      }
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      await mutate(
+        (current) =>
+          current
+            ? {
+                notifications: current.notifications.map((n) => ({ ...n, read: true })),
+                unreadCount: 0,
+              }
+            : current,
+        { revalidate: true }
+      )
     } catch {
       toast.error("Failed to mark all as read")
+      mutate()
     } finally {
       setLoading(false)
     }

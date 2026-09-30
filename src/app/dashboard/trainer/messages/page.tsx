@@ -6,95 +6,87 @@ import { Send, MessageSquare, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/shared/empty-state"
-
-interface Message {
-  _id: string
-  senderId: { _id: string; name: string; avatar?: string }
-  receiverId: { _id: string; name: string; avatar?: string }
-  content: string
-  read: boolean
-  createdAt: string
-}
-
-interface Conversation {
-  userId: string
-  user: { name: string; avatar?: string }
-  lastMessage: { content: string; createdAt: string; isMine: boolean }
-  unreadCount: number
-}
+import { useConversations, useMessages, type Message } from "@/hooks/use-messages"
+import { useErrorToast } from "@/hooks/use-error-toast"
 
 function formatTime(dateStr: string): string {
   return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 }
 
 export default function TrainerMessagesPage() {
-  const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
-  const [isLoadingConversations, setIsLoadingConversations] = useState(true)
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const lastMessageIdRef = useRef<string | null>(null)
+  const markedReadRef = useRef<Set<string>>(new Set())
+
+  const {
+    conversations,
+    isLoading: isLoadingConversations,
+    error: conversationsError,
+    mutate: mutateConversations,
+  } = useConversations()
+
+  const {
+    messages,
+    isLoading: isLoadingMessages,
+    error: messagesError,
+    mutate: mutateMessages,
+  } = useMessages(selectedUserId)
+
+  useErrorToast(conversationsError, "Failed to load conversations")
+  useErrorToast(messagesError, "Failed to load messages")
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [])
 
+  // Reset per-conversation bookkeeping when the thread changes.
   useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        const res = await fetch("/api/messages")
-        if (!cancelled && res.ok) {
-          const data = await res.json()
-          setConversations(data.conversations || [])
-        } else if (!cancelled) {
-          toast.error("Failed to load conversations")
-        }
-      } catch {
-        if (!cancelled) toast.error("Failed to load conversations")
-      } finally {
-        if (!cancelled) setIsLoadingConversations(false)
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [])
-
-  useEffect(() => {
-    if (!selectedUserId) return
-    let cancelled = false
-
-    async function loadMessages() {
-      setIsLoadingMessages(true)
-      try {
-        const res = await fetch(`/api/messages?with=${selectedUserId}`)
-        if (!cancelled && res.ok) {
-          const data = await res.json()
-          setMessages(data.messages || [])
-
-          data.messages?.forEach((msg: Message) => {
-            if (!msg.read && msg.receiverId._id !== selectedUserId) {
-              fetch(`/api/messages/${msg._id}/read`, { method: "PUT" })
-            }
-          })
-        } else if (!cancelled) {
-          toast.error("Failed to load messages")
-        }
-      } catch {
-        if (!cancelled) toast.error("Failed to load messages")
-      } finally {
-        if (!cancelled) setIsLoadingMessages(false)
-      }
-    }
-    loadMessages()
-    return () => { cancelled = true }
+    lastMessageIdRef.current = null
+    markedReadRef.current = new Set()
   }, [selectedUserId])
 
+  // Only scroll when a new message actually arrives — polls that return
+  // unchanged data must not yank the view while the trainer is reading.
   useEffect(() => {
-    scrollToBottom()
+    const lastId = messages[messages.length - 1]?._id ?? null
+    if (lastId && lastId !== lastMessageIdRef.current) {
+      lastMessageIdRef.current = lastId
+      scrollToBottom()
+    }
   }, [messages, scrollToBottom])
+
+  // Mark incoming messages as read at most once each, even across polls.
+  useEffect(() => {
+    if (!selectedUserId) return
+
+    const toMark = messages.filter(
+      (msg) =>
+        !msg.read &&
+        msg.receiverId._id !== selectedUserId &&
+        !markedReadRef.current.has(msg._id)
+    )
+    if (toMark.length === 0) return
+
+    toMark.forEach((msg) => markedReadRef.current.add(msg._id))
+    Promise.all(
+      toMark.map((msg) =>
+        fetch(`/api/messages/${msg._id}/read`, { method: "PUT" })
+          .then((res) => {
+            if (!res.ok) markedReadRef.current.delete(msg._id)
+            return res.ok
+          })
+          .catch(() => {
+            markedReadRef.current.delete(msg._id)
+            return false
+          })
+      )
+    ).then((results) => {
+      if (results.some(Boolean)) mutateConversations()
+    })
+  }, [messages, selectedUserId, mutateConversations])
 
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedUserId || isSending) return
@@ -109,23 +101,14 @@ export default function TrainerMessagesPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setMessages((prev) => [...prev, data.message])
         setNewMessage("")
-
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.userId === selectedUserId
-              ? {
-                  ...c,
-                  lastMessage: {
-                    content: newMessage.trim(),
-                    createdAt: new Date().toISOString(),
-                    isMine: true,
-                  },
-                }
-              : c
-          )
+        await mutateMessages(
+          (current) => ({
+            messages: [...(current?.messages ?? []), data.message as Message],
+          }),
+          { revalidate: true }
         )
+        mutateConversations()
       } else {
         toast.error("Failed to send message")
       }
