@@ -33,6 +33,14 @@ const resetPasswordLimiter = redis
     })
   : null
 
+const changePasswordLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, "60 s"),
+      analytics: true,
+    })
+  : null
+
 const apiLimiter = redis
   ? new Ratelimit({
       redis,
@@ -82,7 +90,12 @@ function checkInMemory(
   return { allowed: true, retryAfterMs: 0 }
 }
 
-type LimiterType = "login" | "register" | "reset-password" | "api"
+type LimiterType =
+  | "login"
+  | "register"
+  | "reset-password"
+  | "change-password"
+  | "api"
 
 const LIMITER_CONFIG: Record<
   LimiterType,
@@ -91,6 +104,7 @@ const LIMITER_CONFIG: Record<
   login: { maxRequests: 5, windowMs: 60_000 },
   register: { maxRequests: 3, windowMs: 60_000 },
   "reset-password": { maxRequests: 3, windowMs: 60_000 },
+  "change-password": { maxRequests: 5, windowMs: 60_000 },
   api: { maxRequests: 60, windowMs: 60_000 },
 }
 
@@ -98,6 +112,7 @@ const limiters: Record<LimiterType, Ratelimit | null> = {
   login: loginLimiter,
   register: registerLimiter,
   "reset-password": resetPasswordLimiter,
+  "change-password": changePasswordLimiter,
   api: apiLimiter,
 }
 

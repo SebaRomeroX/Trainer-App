@@ -3,6 +3,7 @@ import { CreateExerciseSchema } from "@/validators/exercise"
 import { SendMessageSchema } from "@/validators/message"
 import { CreateFeedbackSchema } from "@/validators/feedback"
 import { CreateRoutineSchema } from "@/validators/routine"
+import { RegisterSchema, ChangePasswordSchema } from "@/validators/auth"
 
 describe("CreateExerciseSchema", () => {
   it("validates a valid exercise", () => {
@@ -153,5 +154,89 @@ describe("CreateRoutineSchema", () => {
       exercises: [],
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe("RegisterSchema", () => {
+  it("validates a valid registration", () => {
+    const result = RegisterSchema.safeParse({
+      name: "John Doe",
+      email: "john@example.com",
+      password: "secret123",
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects a password without a number", () => {
+    const result = RegisterSchema.safeParse({
+      name: "John Doe",
+      email: "john@example.com",
+      password: "secretword",
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it("rejects a password shorter than 8 characters", () => {
+    const result = RegisterSchema.safeParse({
+      name: "John Doe",
+      email: "john@example.com",
+      password: "sec123",
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe("ChangePasswordSchema", () => {
+  const valid = {
+    currentPassword: "oldPassword1",
+    newPassword: "newPassword1",
+    confirmPassword: "newPassword1",
+  }
+
+  it("validates a valid password change", () => {
+    const result = ChangePasswordSchema.safeParse(valid)
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects a missing current password", () => {
+    const result = ChangePasswordSchema.safeParse({
+      ...valid,
+      currentPassword: "",
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it("rejects when confirmation does not match", () => {
+    const result = ChangePasswordSchema.safeParse({
+      ...valid,
+      confirmPassword: "different1",
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => i.path[0])
+      expect(issues).toContain("confirmPassword")
+    }
+  })
+
+  it("rejects a new password that is too weak", () => {
+    const result = ChangePasswordSchema.safeParse({
+      ...valid,
+      newPassword: "short",
+      confirmPassword: "short",
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it("rejects reusing the current password", () => {
+    const result = ChangePasswordSchema.safeParse({
+      currentPassword: "samePass1",
+      newPassword: "samePass1",
+      confirmPassword: "samePass1",
+    })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => i.path[0])
+      expect(issues).toContain("newPassword")
+    }
   })
 })

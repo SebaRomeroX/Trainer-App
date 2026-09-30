@@ -15,9 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp, Target, FileText } from "lucide-react"
+import { ArrowLeft, UserPlus, Save, X, Star, Pencil, TrendingUp, Target, FileText, KeyRound } from "lucide-react"
 import Link from "next/link"
 import { AssignedRoutinesList } from "@/components/clients/assigned-routines-list"
+import { ResetPasswordDialog } from "@/components/clients/reset-password-dialog"
 import { EmptyState } from "@/components/shared/empty-state"
 import dynamic from "next/dynamic"
 
@@ -123,6 +124,7 @@ export default function ClientProfilePage() {
   const [goalsInput, setGoalsInput] = useState("")
   const [notesInput, setNotesInput] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false)
 
   const [assignments, setAssignments] = useState<AssignmentEntry[]>([])
   const [overloadPlan, setOverloadPlan] = useState<OverloadPlan | null>(null)
@@ -292,9 +294,19 @@ export default function ClientProfilePage() {
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
-            Profile
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+              Profile
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setResetPasswordOpen(true)}
+            >
+              <KeyRound className="size-4" />
+              Reset Password
+            </Button>
+          </div>
           <div className="space-y-3">
             <div>
               <p className="text-sm text-zinc-500">Fitness Level</p>
@@ -654,6 +666,13 @@ export default function ClientProfilePage() {
         clientId={client._id}
         clientName={client.userId.name}
         onAssigned={() => setRefreshKey((k) => k + 1)}
+      />
+
+      <ResetPasswordDialog
+        open={resetPasswordOpen}
+        onOpenChange={setResetPasswordOpen}
+        clientId={client._id}
+        clientName={client.userId.name}
       />
     </div>
   )

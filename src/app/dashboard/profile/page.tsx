@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getUser } from "@/lib/dal"
 import { LogoutButton } from "@/components/auth/logout-button"
+import { ChangePasswordForm } from "@/components/profile/change-password-form"
 import { Badge } from "@/components/ui/badge"
 import { Shield } from "lucide-react"
 
@@ -38,6 +39,18 @@ export default async function ProfilePage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6 space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold text-zinc-950 dark:text-zinc-100">
+            Change password
+          </h2>
+          <p className="text-sm text-zinc-500">
+            Update the password you use to sign in.
+          </p>
+        </div>
+        <ChangePasswordForm />
       </div>
 
       <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-6">
